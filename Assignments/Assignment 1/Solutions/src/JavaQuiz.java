@@ -26,7 +26,6 @@ public class JavaQuiz {
 	public static void main(String[] args){
 
 		if(args.length == 1){
-			
 			/* You should create the QuestionLibrary class */
 			boolean isQuestionLibraryReady = QuestionLibrary.buildLibrary(args[0]);
 			if (isQuestionLibraryReady == true) {
