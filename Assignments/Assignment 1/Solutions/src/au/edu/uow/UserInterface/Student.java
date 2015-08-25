@@ -5,7 +5,7 @@ public class Student {
     private int Score;
     private String Name;
 
-    Student()
+    public Student()
     {
         // Set Initial Values
         Score = 0;
