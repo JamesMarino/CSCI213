@@ -23,6 +23,14 @@ public class Bank {
     return customers.size();
   }
 
+  public void sortCustomers ()
+  {
+
+
+
+    Collections.sort(customers);
+  }
+
   public static Bank getBank(){
 	return bank_instance;}
 }

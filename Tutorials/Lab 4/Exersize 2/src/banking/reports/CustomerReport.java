@@ -16,6 +16,10 @@ public class CustomerReport {
     System.out.println("\t\t\t================");
 
     for ( int cust_idx = 0; cust_idx < bank.getNumOfCustomers(); cust_idx++ ) {
+
+      // Sort
+      bank.sortCustomers();
+
       customer = bank.getCustomer(cust_idx);
 
       System.out.println();

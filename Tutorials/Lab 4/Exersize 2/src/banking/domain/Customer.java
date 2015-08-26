@@ -2,7 +2,7 @@ package banking.domain;
 import java.util.*;
 
 
-public class Customer {
+public class Customer implements Comparable<Customer> {
 
   // Data Attributes
   private String   firstName;
@@ -32,5 +32,11 @@ public class Customer {
   }
   public int getNumOfAccounts() {
     return accounts.size();
+  }
+
+  @Override
+  public int compareTo(Customer other)
+  {
+    return this.lastName.compareToIgnoreCase(other.lastName);
   }
 }
