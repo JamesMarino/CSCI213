@@ -5,37 +5,48 @@ import java.util.List;
 
 class TrueAndFalseQuestion implements Question
 {
-
+    // Properties
     private List<String> Questions;
     private List<String> Choices;
     private String Answer;
 
     public TrueAndFalseQuestion()
     {
-
+        Questions = new ArrayList<>();
+        Choices = new ArrayList<>();
+        Answer = "";
     }
 
     public List<String> getQuestion()
     {
-        List<String> questions = new ArrayList<>();
-
-        return questions;
+        return Questions;
     }
 
     public List<String> getChoices()
     {
-        List<String> choices = new ArrayList<>();
-
-        return choices;
+        return Choices;
     }
 
     public boolean compareAnswer(int ans)
     {
-        return true;
+        String lowerAnswer = Answer.toLowerCase();
+        String lowerResult = Choices.get(ans-1).toLowerCase();
+
+        return lowerAnswer.equals(lowerResult);
     }
 
     public void addChoice(String choice)
     {
         Choices.add(choice);
+    }
+
+    public void setQuestion(String question)
+    {
+        Questions.add(question);
+    }
+
+    public void setAnswer(String answer)
+    {
+        Answer = answer;
     }
 }

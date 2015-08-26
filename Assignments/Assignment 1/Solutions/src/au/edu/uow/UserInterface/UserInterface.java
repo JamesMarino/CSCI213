@@ -1,8 +1,6 @@
 package au.edu.uow.UserInterface;
 
 import au.edu.uow.QuestionLibrary.Question;
-
-import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
 
@@ -12,7 +10,7 @@ public class UserInterface
     public void startQuiz(List<Question> quiz, Student student)
     {
         Scanner reader = new Scanner(System.in);
-        int answer = 0;
+        int answer;
         int questionCount = 1;
         int choiceCount = 1;
 
@@ -42,12 +40,15 @@ public class UserInterface
             questionCount++;
 
         }
+
+        // Set size of quiz
+        student.setQuestionCount(quiz.size());
     }
 
     public void showStudentMarks(Student student)
     {
         System.out.println("Result of " + student.getName() + ": " +
-                            student.getScore() + " out of ");
+                            student.getScore() + " out of " + student.getQuestionCount());
     }
 
     public Student getStudent()

@@ -3,15 +3,6 @@ package au.edu.uow.QuestionLibrary;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.io.*;
-
-// XML Reading
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
-import javax.xml.transform.dom.*;
-import javax.xml.transform.stream.*;
-import org.xml.sax.*;
-import org.w3c.dom.*;
 
 public class QuestionLibrary
 {
@@ -21,18 +12,31 @@ public class QuestionLibrary
     public static boolean buildLibrary(String qFile)
     {
 
+        // This needs to be automatic proccess
         questions = new ArrayList<>();
 
         MultipleChoiceQuestion firstQuestion = new MultipleChoiceQuestion();
-        firstQuestion.setQuestion("Are memes gay?");
+        firstQuestion.setQuestion("Are memes delicious?");
         firstQuestion.setAnswer("true");
 
+        questions.add(firstQuestion);
+
         MultipleChoiceQuestion secondQuestion = new MultipleChoiceQuestion();
-        secondQuestion.setQuestion("Samanantha yo Gay");
+        secondQuestion.setQuestion("Samanantha?");
         secondQuestion.setAnswer("false");
 
-        questions.add(firstQuestion);
         questions.add(secondQuestion);
+
+        TrueAndFalseQuestion thirdQuestion = new TrueAndFalseQuestion();
+        thirdQuestion.setQuestion("question three");
+        thirdQuestion.setAnswer("ans1");
+
+        thirdQuestion.addChoice("ans2");
+        thirdQuestion.addChoice("ans1");
+        thirdQuestion.addChoice("ans3");
+        thirdQuestion.addChoice("ans4");
+
+        questions.add(thirdQuestion);
 
         return true;
     }

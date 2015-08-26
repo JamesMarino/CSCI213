@@ -10,7 +10,6 @@ class MultipleChoiceQuestion implements Question
     private List<String> Choices;
     private String Answer;
 
-
     public MultipleChoiceQuestion()
     {
         Questions = new ArrayList<>();
