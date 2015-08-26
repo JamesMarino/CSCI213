@@ -5,6 +5,7 @@ import java.util.List;
 
 class TrueAndFalseQuestion implements Question
 {
+
     // Properties
     private List<String> Questions;
     private List<String> Choices;
@@ -15,6 +16,11 @@ class TrueAndFalseQuestion implements Question
         Questions = new ArrayList<>();
         Choices = new ArrayList<>();
         Answer = "";
+
+        // Automatically Add Choices
+        Choices.add("True");
+        Choices.add("False");
+
     }
 
     public List<String> getQuestion()
@@ -33,11 +39,6 @@ class TrueAndFalseQuestion implements Question
         String lowerResult = Choices.get(ans-1).toLowerCase();
 
         return lowerAnswer.equals(lowerResult);
-    }
-
-    public void addChoice(String choice)
-    {
-        Choices.add(choice);
     }
 
     public void setQuestion(String question)

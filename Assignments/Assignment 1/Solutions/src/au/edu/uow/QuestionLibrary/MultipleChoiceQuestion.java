@@ -15,11 +15,6 @@ class MultipleChoiceQuestion implements Question
         Questions = new ArrayList<>();
         Choices = new ArrayList<>();
         Answer = "";
-
-        // Automatically Add Choices
-        Choices.add("True");
-        Choices.add("False");
-
     }
 
     public List<String> getQuestion()
@@ -40,6 +35,11 @@ class MultipleChoiceQuestion implements Question
         return lowerAnswer.equals(lowerResult);
     }
 
+    public void addChoice(String choice)
+    {
+        Choices.add(choice);
+    }
+
     public void setQuestion(String question)
     {
         Questions.add(question);
@@ -49,5 +49,4 @@ class MultipleChoiceQuestion implements Question
     {
         Answer = answer;
     }
-
 }

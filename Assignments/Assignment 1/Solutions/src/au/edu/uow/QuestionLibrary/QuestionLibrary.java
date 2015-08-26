@@ -12,33 +12,18 @@ public class QuestionLibrary
     public static boolean buildLibrary(String qFile)
     {
 
-        // This needs to be automatic proccess
-        questions = new ArrayList<>();
+        XMLHandler xmlFile = new XMLHandler(qFile);
 
-        MultipleChoiceQuestion firstQuestion = new MultipleChoiceQuestion();
-        firstQuestion.setQuestion("Are memes delicious?");
-        firstQuestion.setAnswer("true");
-
-        questions.add(firstQuestion);
-
-        MultipleChoiceQuestion secondQuestion = new MultipleChoiceQuestion();
-        secondQuestion.setQuestion("Samanantha?");
-        secondQuestion.setAnswer("false");
-
-        questions.add(secondQuestion);
-
-        TrueAndFalseQuestion thirdQuestion = new TrueAndFalseQuestion();
-        thirdQuestion.setQuestion("question three");
-        thirdQuestion.setAnswer("ans1");
-
-        thirdQuestion.addChoice("ans2");
-        thirdQuestion.addChoice("ans1");
-        thirdQuestion.addChoice("ans3");
-        thirdQuestion.addChoice("ans4");
-
-        questions.add(thirdQuestion);
-
-        return true;
+        if(xmlFile.readFile()) {
+            if (xmlFile.createLibrary()) {
+                questions = xmlFile.getLibrary();
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 
     public static List<Question> makeQuiz(int noOfQuestions)
