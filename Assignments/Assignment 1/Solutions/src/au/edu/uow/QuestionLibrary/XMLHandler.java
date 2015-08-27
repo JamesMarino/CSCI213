@@ -14,6 +14,10 @@ import java.io.IOException;
 import java.io.FileReader;
 import java.util.*;
 
+/**
+ * Reads XML and Processes it
+ * @author James Marino
+ */
 public class XMLHandler
 {
     private String FileName;
@@ -27,6 +31,10 @@ public class XMLHandler
         FileContents = "";
     }
 
+    /**
+     * Getter - Question List
+     * @return Question List
+     */
     public List<Question> getLibrary()
     {
         return QuestionList;
@@ -63,6 +71,10 @@ public class XMLHandler
         }
     }
 
+    /**
+     * Creates List to be used in test
+     * @return successful creation
+     */
     public boolean createLibrary()
     {
         Document DOM;

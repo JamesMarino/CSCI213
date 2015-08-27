@@ -2,11 +2,20 @@ package au.edu.uow.QuestionLibrary;
 
 import java.util.*;
 
+/**
+ * Handles question management
+ * @author James Marino
+ */
 public class QuestionLibrary
 {
     // Private Properties
     private static List<Question> questions;
 
+    /**
+     * Builds whole question list from file
+     * @param qFile File name
+     * @return success of read
+     */
     public static boolean buildLibrary(String qFile)
     {
 
@@ -24,6 +33,11 @@ public class QuestionLibrary
         }
     }
 
+    /**
+     * Getter - Final question list
+     * @param noOfQuestions to make from full question list
+     * @return the quiz to be used
+     */
     public static List<Question> makeQuiz(int noOfQuestions)
     {
 

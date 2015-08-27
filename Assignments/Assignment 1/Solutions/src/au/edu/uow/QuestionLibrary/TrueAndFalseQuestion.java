@@ -3,6 +3,10 @@ package au.edu.uow.QuestionLibrary;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Processes True False type questions
+ * @author James Marino
+ */
 class TrueAndFalseQuestion implements Question
 {
 
@@ -23,16 +27,29 @@ class TrueAndFalseQuestion implements Question
 
     }
 
+    /**
+     * Getter - Question
+     * @return Question
+     */
     public List<String> getQuestion()
     {
         return Questions;
     }
 
+    /**
+     * Getter - List of choices
+     * @return List of choices
+     */
     public List<String> getChoices()
     {
         return Choices;
     }
 
+    /**
+     * Checks correct answer
+     * @param ans The student's answer
+     * @return Correct answer or not
+     */
     public boolean compareAnswer(int ans)
     {
         String lowerAnswer = Answer.toLowerCase();
@@ -44,11 +61,19 @@ class TrueAndFalseQuestion implements Question
         return lowerAnswer.equals(lowerResult);
     }
 
+    /**
+     * Setter - Questions
+     * @param question Question being asked
+     */
     public void setQuestion(String question)
     {
         Questions.add(question);
     }
 
+    /**
+     * Setter - Answer
+     * @param answer Answer for current question
+     */
     public void setAnswer(String answer)
     {
         Answer = answer;
