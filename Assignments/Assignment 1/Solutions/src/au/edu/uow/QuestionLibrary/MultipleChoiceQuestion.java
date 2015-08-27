@@ -20,8 +20,8 @@ class MultipleChoiceQuestion implements Question
 
     public MultipleChoiceQuestion()
     {
-        Questions = new ArrayList<>();
-        Choices = new ArrayList<>();
+        Questions = new ArrayList<String>();
+        Choices = new ArrayList<String>();
         Answer = "";
     }
 

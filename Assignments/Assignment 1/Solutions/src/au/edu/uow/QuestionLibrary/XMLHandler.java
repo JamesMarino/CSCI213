@@ -29,7 +29,7 @@ public class XMLHandler
 
     public XMLHandler(String fileName)
     {
-        QuestionList = new ArrayList<>();
+        QuestionList = new ArrayList<Question>();
         FileName = fileName;
         FileContents = "";
     }
