@@ -48,7 +48,7 @@ public class QuestionLibrary
         long seed = System.nanoTime();
         Collections.shuffle(questions, new Random(seed));
 
-        List<Question> quiz = new ArrayList<>();
+        List<Question> quiz = new ArrayList<Question>();
         Iterator<Question> iterator = questions.iterator();
 
         for (int i = 0; i < noOfQuestions; i++) {

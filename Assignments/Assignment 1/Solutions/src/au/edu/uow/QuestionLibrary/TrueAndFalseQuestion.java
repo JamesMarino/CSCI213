@@ -20,8 +20,8 @@ class TrueAndFalseQuestion implements Question
 
     public TrueAndFalseQuestion()
     {
-        Questions = new ArrayList<>();
-        Choices = new ArrayList<>();
+        Questions = new ArrayList<String>();
+        Choices = new ArrayList<String>();
         Answer = "";
 
         // Automatically Add Choices
