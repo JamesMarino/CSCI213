@@ -16,7 +16,10 @@ import java.util.*;
 
 /**
  * Reads XML and Processes it
- * @author James Marino
+ * @author Subject Code: CSCI213
+ * @author Name: James Marino
+ * @author Student Number: 4720994
+ * @author Login: jm617
  */
 public class XMLHandler
 {
