@@ -29,7 +29,7 @@ class MultipleChoiceQuestion implements Question
 
     public boolean compareAnswer(int ans)
     {
-        String lowerAnswer = Answer.toLowerCase();
+        String lowerAnswer = Choices.get(Integer.parseInt(Answer.substring(0, 1))-1).toLowerCase();
         String lowerResult = Choices.get(ans-1).toLowerCase();
 
         return lowerAnswer.equals(lowerResult);

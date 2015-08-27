@@ -19,7 +19,7 @@ public class UserInterface
         for (Question current : quiz) {
 
             System.out.println("Question No " + questionCount + ":" + "\n");
-            System.out.println(current.getQuestion().iterator().next() + "\n");
+            System.out.print(current.getQuestion().iterator().next() + "\n");
             System.out.println("Answer Choices: ");
 
             for (String choice : current.getChoices()) {
@@ -27,8 +27,15 @@ public class UserInterface
                 choiceCount++;
             }
 
-            System.out.print("Choose your answer: ");
-            answer = reader.nextInt();
+            System.out.print("\nChoose your answer: ");
+
+            do {
+                answer = reader.nextInt();
+                if ((answer < 1) || (answer > choiceCount-1)) {
+                    System.out.print("Invalid Choice. Choose your answer: ");
+                }
+            } while ((answer < 1) || (answer > choiceCount-1));
+
             System.out.print("\n");
 
             // Store response

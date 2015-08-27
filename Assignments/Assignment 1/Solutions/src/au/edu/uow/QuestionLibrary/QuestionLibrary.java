@@ -1,8 +1,6 @@
 package au.edu.uow.QuestionLibrary;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class QuestionLibrary
 {
@@ -28,6 +26,10 @@ public class QuestionLibrary
 
     public static List<Question> makeQuiz(int noOfQuestions)
     {
+
+        // Shuffle the deck
+        long seed = System.nanoTime();
+        Collections.shuffle(questions, new Random(seed));
 
         List<Question> quiz = new ArrayList<>();
         Iterator<Question> iterator = questions.iterator();

@@ -38,6 +38,9 @@ class TrueAndFalseQuestion implements Question
         String lowerAnswer = Answer.toLowerCase();
         String lowerResult = Choices.get(ans-1).toLowerCase();
 
+        // Remove new line
+        lowerAnswer = lowerAnswer.replace("\n", "");
+
         return lowerAnswer.equals(lowerResult);
     }
 

@@ -42,10 +42,16 @@ public class XMLHandler
 
             while ((temp = in.readLine()) != null) {
                 FileContents = FileContents.concat(temp);
-                //FileContents = FileContents.concat("\n");
+
+                    if (temp.length() > 0) {
+                        char c = temp.charAt(0);
+
+                        if (c != '<') {
+                            FileContents = FileContents.concat("\n");
+                        }
+                    }
             }
 
-            System.out.println(FileContents);
             in.close();
 
             return true;
@@ -69,7 +75,7 @@ public class XMLHandler
             // Parse
             DOM = DB.parse(is);
 
-            // Get All Multiple choice
+            // Get All True and False Questions
             NodeList allTrueFalse = DOM.getElementsByTagName("TFQuestion");
 
             for (int i = 0; i < allTrueFalse.getLength(); i++) {
@@ -91,6 +97,39 @@ public class XMLHandler
                 }
 
                 QuestionList.add(tfQuestion);
+
+            }
+
+            // Get All Multiple choice
+            NodeList allMultipleChoice = DOM.getElementsByTagName("MQuestion");
+
+            for (int i = 0; i < allMultipleChoice.getLength(); i++) {
+
+                MultipleChoiceQuestion mcQuestion  = new MultipleChoiceQuestion();
+                NodeList currentQuestion = allMultipleChoice.item(i).getChildNodes();
+
+                Node [] questionList = {
+                        currentQuestion.item(0),
+                        currentQuestion.item(1),
+                        currentQuestion.item(2)
+                };
+
+                for (int j = 0; j < 3; j++) {
+                    if (questionList[j].getNodeName().equals("answer")) {
+                        mcQuestion.setAnswer(questionList[j].getTextContent());
+                    } else if (questionList[j].getNodeName().equals("question")) {
+                        mcQuestion.setQuestion(questionList[j].getTextContent());
+                    } else if (questionList[j].getNodeName().equals("choices")) {
+
+                        String choices[] = questionList[j].getTextContent().split("\n");
+
+                        for (String s: choices) {
+                            mcQuestion.addChoice(s);
+                        }
+                    }
+                }
+
+                QuestionList.add(mcQuestion);
 
             }
 
