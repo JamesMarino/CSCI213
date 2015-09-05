@@ -18,11 +18,11 @@ public class MyQuestionDB
 
         connection.setProperties();
         connection.start();
+        connection.createTable();
 
-        connection.insert("CREATE TABLE Test (Message CHAR(22))");
-        connection.insert("INSERT INTO Test VALUES ('Hello World')");
+        connection.insert("INSERT INTO Questions VALUES ('Hello World')");
 
-        ResultSet result = connection.select("SELECT * FROM Test");
+        ResultSet result = connection.select("SELECT * FROM Questions");
 
         try {
 
@@ -36,7 +36,7 @@ public class MyQuestionDB
             System.out.println("Error no Records");
         }
 
-        connection.removeTable("Test");
+        connection.removeTable();
         connection.close();
 
     }

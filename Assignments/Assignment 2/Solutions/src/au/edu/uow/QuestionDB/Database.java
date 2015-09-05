@@ -116,7 +116,7 @@ public class Database
         return true;
     }
 
-    public boolean removeTable(String tableName)
+    public boolean removeTable()
     {
         if (DBConnection != null) {
 
@@ -124,7 +124,32 @@ public class Database
 
                 Statement stat = DBConnection.createStatement();
 
-                stat.executeUpdate("DROP TABLE " + tableName);
+                stat.executeUpdate("DROP TABLE Questions");
+
+                stat.close();
+
+                return true;
+
+            } catch (SQLException sqle) {
+                return false;
+            }
+
+        } else {
+            return false;
+        }
+    }
+
+    public boolean createTable()
+    {
+        if (DBConnection != null) {
+
+            try {
+
+                Statement stat = DBConnection.createStatement();
+
+                stat.executeUpdate("CREATE TABLE Questions (Q_ID INT NOT NULL GENERATED ALWAYS AS IDENTITY " +
+                        "(START WITH 1, INCREMENT BY 1), question CLOB, choices CLOB, answer INT, CONSTRAINT " +
+                        "primary_key PRIMARY KEY (Q_ID))");
 
                 stat.close();
 
