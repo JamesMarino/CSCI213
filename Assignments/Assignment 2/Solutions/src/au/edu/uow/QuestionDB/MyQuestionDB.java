@@ -2,8 +2,7 @@ package au.edu.uow.QuestionDB;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import au.edu.uow.QuestionLibrary.*;
 
@@ -20,25 +19,6 @@ public class MyQuestionDB
         connection.start();
         connection.createTable();
 
-        connection.insert("INSERT INTO Questions VALUES ('Hello World')");
-
-        ResultSet result = connection.select("SELECT * FROM Questions");
-
-        try {
-
-            while (result.next()) {
-                System.out.println(result.getString(1));
-            }
-
-            result.close();
-
-        } catch (SQLException e) {
-            System.out.println("Error no Records");
-        }
-
-        connection.removeTable();
-        connection.close();
-
     }
 
     /**
@@ -52,7 +32,27 @@ public class MyQuestionDB
      */
     public boolean buildQuestionDB(String questionFile)
     {
-        return true;
+
+        List<Question> questions;
+        XMLHandler xmlFile = new XMLHandler(questionFile);
+
+        if(xmlFile.readFile()) {
+            if (xmlFile.createLibrary()) {
+
+                questions = xmlFile.getLibrary();
+
+                for (Question question : questions) {
+                    this.addQuestion(question);
+                }
+
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
     }
 
     /**
@@ -62,7 +62,7 @@ public class MyQuestionDB
      */
     public int getTotalNumberOfQuestions()
     {
-        return 0;
+        return connection.totalRows();
     }
 
     /**
@@ -72,32 +72,7 @@ public class MyQuestionDB
      */
     public Question getQuestion(int questionIndex)
     {
-        List<String> one = new ArrayList<>();
-        List<String> two = new ArrayList<>();
-
-        MultipleChoiceQuestion myMultiple = new MultipleChoiceQuestion(one, two, 1);
-
-        return myMultiple;
-    }
-
-    /**
-     * This method adds a question to the database
-     * @param question The question object to be added to the database
-     * @return True if the operation is successful
-     */
-    public boolean addQuestion(Question question)
-    {
-        return true;
-    }
-
-    /**
-     * This method removes the created table from the database
-     * @return True if the operation is successful
-     * @see #buildQuestionDB(String)
-     */
-    public boolean cleanUpDB()
-    {
-        return true;
+        return connection.select(questionIndex);
     }
 
     /**
@@ -111,8 +86,49 @@ public class MyQuestionDB
      */
     public List<Question> makeQuiz(int noOfQuestions)
     {
-        List<Question> my = new ArrayList<>();
 
-        return my;
+        List<Question> fullQuestions = new ArrayList<Question>();
+        List<Question> finalList = new ArrayList<Question>();
+        Iterator<Question> iterator = fullQuestions.iterator();
+
+        // Store into all question list
+        for (int i = 0; i < getTotalNumberOfQuestions(); i++) {
+            fullQuestions.add(getQuestion(i));
+        }
+
+        // Shuffle list
+        long seed = System.nanoTime();
+        Collections.shuffle(fullQuestions, new Random(seed));
+
+
+        // Store from full list, place into small list
+        for (int i = 0; i < noOfQuestions; i++) {
+            if (iterator.hasNext()) {
+                finalList.add(iterator.next());
+            }
+        }
+
+        return finalList;
+
+    }
+
+    /**
+     * This method adds a question to the database
+     * @param question The question object to be added to the database
+     * @return True if the operation is successful
+     */
+    public boolean addQuestion(Question question)
+    {
+        return connection.insert(question);
+    }
+
+    /**
+     * This method removes the created table from the database
+     * @return True if the operation is successful
+     * @see #buildQuestionDB(String)
+     */
+    public boolean cleanUpDB()
+    {
+        return (connection.close() && connection.removeTable());
     }
 }
