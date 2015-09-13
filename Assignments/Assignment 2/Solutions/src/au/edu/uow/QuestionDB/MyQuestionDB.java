@@ -70,9 +70,9 @@ public class MyQuestionDB
      * @param questionIndex The index of the question in the database
      * @return The question object
      */
-    public Question getQuestion(int questionIndex)
+    public List<Question> getQuestionListFromDB()
     {
-        return connection.select(questionIndex);
+        return connection.select();
     }
 
     /**
@@ -87,14 +87,12 @@ public class MyQuestionDB
     public List<Question> makeQuiz(int noOfQuestions)
     {
 
-        List<Question> fullQuestions = new ArrayList<Question>();
+        List<Question> fullQuestions;
         List<Question> finalList = new ArrayList<Question>();
 
         // Store into all question list
         int numberOfQuestions = getTotalNumberOfQuestions();
-        for (int i = 0; i < numberOfQuestions; i++) {
-            fullQuestions.add(getQuestion(i));
-        }
+        fullQuestions = getQuestionListFromDB();
 
         // Shuffle list
         long seed = System.nanoTime();

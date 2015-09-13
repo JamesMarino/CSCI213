@@ -44,6 +44,7 @@ public class Database
     {
 
         // Attempt to start server before inserting everytime
+        this.setProperties();
         this.start();
 
         if (DBConnection != null) {
@@ -81,7 +82,7 @@ public class Database
                 ps.setInt(3, answer);
 
                 // Run the query
-                System.out.println(ps.executeUpdate());
+                ps.executeUpdate();
 
                 // Close
                 bos1.close();
@@ -103,13 +104,15 @@ public class Database
 
     }
 
-    public Question select(int questionIndex)
+    public List<Question> select()
     {
         // Attempt to start server before selecting everytime
+        this.setProperties();
         this.start();
 
         ResultSet resultSet;
 
+        List<Question> finalList = new ArrayList<Question>();
         List<String> questionList = new ArrayList<String>();
         List<String> choiceList = new ArrayList<String>();
         int answerInt = 0;
@@ -120,19 +123,45 @@ public class Database
                 {
                     // Query for Questions
                     Statement stat = DBConnection.createStatement();
-                    resultSet = stat.executeQuery("SELECT question FROM " + TableName + " WHERE Q_ID = " + questionIndex + 1);
+                    resultSet = stat.executeQuery("SELECT * FROM " + TableName);
 
                     while (resultSet.next()) {
-                        Clob clob = resultSet.getClob("question");
+                        Clob questionClob = resultSet.getClob("question");
+                        Clob choiceClob = resultSet.getClob("choices");
 
-                        InputStream ip = clob.getAsciiStream();
+                        // Process Clobs
+                        InputStream ipQ = questionClob.getAsciiStream();
+                        InputStream ipC = choiceClob.getAsciiStream();
 
-                        ObjectInputStream in = new ObjectInputStream(ip);
-                        questionList = (List<String>) in.readObject();
+                        ObjectInputStream inQ = new ObjectInputStream(ipQ);
+                        ObjectInputStream inC = new ObjectInputStream(ipC);
+
+                        // Store into lists
+                        questionList = (List<String>) inQ.readObject();
+                        choiceList = (List<String>) inC.readObject();
+                        answerInt = resultSet.getInt("answer");
 
                         // Close
-                        ip.close();
-                        in.close();
+                        ipQ.close();
+                        ipC.close();
+                        inQ.close();
+                        inC.close();
+
+
+                        try {
+                            // Check what class through choice
+                            if (choiceList.get(0).toLowerCase().equals("true") || choiceList.get(0).toLowerCase().equals("false")) {
+                                String out = "" + answerInt;
+
+                                finalList.add(new TrueAndFalseQuestion(questionList, out));
+
+                            } else {
+                                finalList.add(new MultipleChoiceQuestion(questionList, choiceList, answerInt));
+                            }
+                        } catch (Exception e) {
+                            finalList.add(new MultipleChoiceQuestion(questionList, choiceList, answerInt));
+                        }
+
                     }
 
                     // Close
@@ -141,60 +170,12 @@ public class Database
 
                 }
 
-                // Query for Choices
-                {
-                    Statement stat = DBConnection.createStatement();
-                    resultSet = stat.executeQuery("SELECT choices FROM " + TableName + " WHERE Q_ID = " + questionIndex + 1);
-
-                    while (resultSet.next()) {
-                        Clob clob = resultSet.getClob("choices");
-
-                        InputStream ip = clob.getAsciiStream();
-
-                        ObjectInputStream in = new ObjectInputStream(ip);
-                        choiceList = (List<String>) in.readObject();
-
-                        // Close
-                        ip.close();
-                        in.close();
-
-                    }
-
-                    stat.close();
-                    resultSet.close();
-                }
-
-                // Get Answer
-                {
-                    Statement stat = DBConnection.createStatement();
-                    resultSet = stat.executeQuery("SELECT answer FROM " + TableName + " WHERE Q_ID = " + questionIndex + 1);
-
-                    while (resultSet.next()) {
-
-                        answerInt = resultSet.getInt("answer");
-
-                    }
-
-                    stat.close();
-                    resultSet.close();
-                }
-
             } catch (Exception e) {
-                choiceList = null;
+                finalList = null;
             }
         }
 
-        try {
-            // Check what class through choice
-            if (choiceList.get(0).toLowerCase().equals("true") || choiceList.get(0).toLowerCase().equals("false")) {
-                String out = "" + answerInt;
-                return new TrueAndFalseQuestion(questionList, out);
-            } else {
-                return new MultipleChoiceQuestion(questionList, choiceList, answerInt);
-            }
-        } catch (Exception e) {
-            return new MultipleChoiceQuestion(questionList, choiceList, answerInt);
-        }
+        return finalList;
 
     }
 
