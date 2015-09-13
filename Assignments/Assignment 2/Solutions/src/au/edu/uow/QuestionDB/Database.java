@@ -16,7 +16,7 @@ public class Database
     // Constants
     private static final String PropertiesFileName = "database.properties";
     private static final String PropertiesURL = "jdbc.url";
-    private static final String PropertiesHome = "jdbc.system.home";
+    // private static final String PropertiesHome = "jdbc.system.home";
 
     // Table Constants
     private static final String TableName = "Questions";
@@ -43,6 +43,9 @@ public class Database
     public boolean insert(Question question)
     {
 
+        // Attempt to start server before inserting everytime
+        this.start();
+
         if (DBConnection != null) {
 
             // Data
@@ -68,7 +71,8 @@ public class Database
                 InputStream choicesStream = new ByteArrayInputStream(bos1.toByteArray());
                 InputStream questionsStream = new ByteArrayInputStream(bos2.toByteArray());
 
-                PreparedStatement ps = DBConnection.prepareStatement("INSERT INTO " + TableName + "" +
+
+                PreparedStatement ps = DBConnection.prepareStatement("INSERT INTO " + TableName + " " +
                         "(question, choices, answer) VALUES (?, ?, ?)");
 
                 // Insert Values
@@ -77,10 +81,15 @@ public class Database
                 ps.setInt(3, answer);
 
                 // Run the query
-                ps.execute();
+                System.out.println(ps.executeUpdate());
 
                 // Close
+                bos1.close();
+                bos2.close();
+
                 ps.close();
+                choicesStream.close();
+                questionsStream.close();
 
                 return true;
 
@@ -96,6 +105,9 @@ public class Database
 
     public Question select(int questionIndex)
     {
+        // Attempt to start server before selecting everytime
+        this.start();
+
         ResultSet resultSet;
 
         List<String> questionList = new ArrayList<String>();
@@ -118,9 +130,15 @@ public class Database
                         ObjectInputStream in = new ObjectInputStream(ip);
                         questionList = (List<String>) in.readObject();
 
+                        // Close
+                        ip.close();
+                        in.close();
                     }
 
+                    // Close
                     stat.close();
+                    resultSet.close();
+
                 }
 
                 // Query for Choices
@@ -136,9 +154,14 @@ public class Database
                         ObjectInputStream in = new ObjectInputStream(ip);
                         choiceList = (List<String>) in.readObject();
 
+                        // Close
+                        ip.close();
+                        in.close();
+
                     }
 
                     stat.close();
+                    resultSet.close();
                 }
 
                 // Get Answer
@@ -153,6 +176,7 @@ public class Database
                     }
 
                     stat.close();
+                    resultSet.close();
                 }
 
             } catch (Exception e) {

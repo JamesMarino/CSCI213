@@ -89,10 +89,10 @@ public class MyQuestionDB
 
         List<Question> fullQuestions = new ArrayList<Question>();
         List<Question> finalList = new ArrayList<Question>();
-        Iterator<Question> iterator = fullQuestions.iterator();
 
         // Store into all question list
-        for (int i = 0; i < getTotalNumberOfQuestions(); i++) {
+        int numberOfQuestions = getTotalNumberOfQuestions();
+        for (int i = 0; i < numberOfQuestions; i++) {
             fullQuestions.add(getQuestion(i));
         }
 
@@ -100,6 +100,9 @@ public class MyQuestionDB
         long seed = System.nanoTime();
         Collections.shuffle(fullQuestions, new Random(seed));
 
+
+        // Setup Iterator
+        Iterator<Question> iterator = fullQuestions.iterator();
 
         // Store from full list, place into small list
         for (int i = 0; i < noOfQuestions; i++) {
