@@ -1,11 +1,15 @@
 package au.edu.uow.QuestionDB;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.*;
-
 import au.edu.uow.QuestionLibrary.*;
 
+/**
+ * Implements question interface
+ * @author Subject Code: CSCI213
+ * @author Name: James Marino
+ * @author Student Number: 4720994
+ * @author Login: jm617
+ */
 public class MyQuestionDB
 {
     Database connection;
@@ -67,7 +71,6 @@ public class MyQuestionDB
 
     /**
      * This method returns the question from the database at the given position
-     * @param questionIndex The index of the question in the database
      * @return The question object
      */
     public List<Question> getQuestionListFromDB()
@@ -82,7 +85,6 @@ public class MyQuestionDB
      *   content from the database
      * @param noOfQuestions - the number of questions in a quiz
      * @return Quiz questions in a list
-     * @see #getQuestion(int)
      */
     public List<Question> makeQuiz(int noOfQuestions)
     {
@@ -91,7 +93,6 @@ public class MyQuestionDB
         List<Question> finalList = new ArrayList<Question>();
 
         // Store into all question list
-        int numberOfQuestions = getTotalNumberOfQuestions();
         fullQuestions = getQuestionListFromDB();
 
         // Shuffle list

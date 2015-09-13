@@ -10,13 +10,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+/**
+ * Handles Database Events
+ * @author Subject Code: CSCI213
+ * @author Name: James Marino
+ * @author Student Number: 4720994
+ * @author Login: jm617
+ */
 public class Database
 {
 
     // Constants
     private static final String PropertiesFileName = "database.properties";
     private static final String PropertiesURL = "jdbc.url";
-    // private static final String PropertiesHome = "jdbc.system.home";
 
     // Table Constants
     private static final String TableName = "Questions";
@@ -30,6 +36,10 @@ public class Database
         DBConnection = null;
     }
 
+    /**
+     * Closes the connection to the database
+     * @return status
+     */
     public boolean close()
     {
         try {
@@ -40,6 +50,11 @@ public class Database
         }
     }
 
+    /**
+     * Inserts a row of question into the database
+     * @param question question to insert
+     * @return error status of query
+     */
     public boolean insert(Question question)
     {
 
@@ -104,18 +119,22 @@ public class Database
 
     }
 
+    /**
+     * Builds a question List from the database
+     * @return question list (all)
+     */
     public List<Question> select()
     {
-        // Attempt to start server before selecting everytime
+        // Attempt to start server before selecting every time
         this.setProperties();
         this.start();
 
         ResultSet resultSet;
 
         List<Question> finalList = new ArrayList<Question>();
-        List<String> questionList = new ArrayList<String>();
-        List<String> choiceList = new ArrayList<String>();
-        int answerInt = 0;
+        List<String> questionList;
+        List<String> choiceList;
+        int answerInt;
 
         if (DBConnection != null) {
             try {
@@ -126,6 +145,8 @@ public class Database
                     resultSet = stat.executeQuery("SELECT * FROM " + TableName);
 
                     while (resultSet.next()) {
+
+                        // Convert to CLOB datatype
                         Clob questionClob = resultSet.getClob("question");
                         Clob choiceClob = resultSet.getClob("choices");
 
@@ -179,10 +200,16 @@ public class Database
 
     }
 
+    /**
+     * Starts the Database
+     * @return start status of Database
+     */
     public boolean start()
     {
         if (DBProperties != null) {
             try {
+
+                // Try and connect
                 DBConnection = DriverManager.getConnection(DBProperties.getProperty(PropertiesURL) + ";create=true");
 
                 return true;
@@ -195,6 +222,10 @@ public class Database
 
     }
 
+    /**
+     * Sets properties of Database Connection
+     * @return whether properties are set appropriately
+     */
     public boolean setProperties()
     {
         DBProperties = new Properties();
@@ -213,6 +244,10 @@ public class Database
         return true;
     }
 
+    /**
+     * Drops the table with all data in
+     * @return success of drop
+     */
     public boolean removeTable()
     {
         if (DBConnection != null) {
@@ -236,6 +271,10 @@ public class Database
         }
     }
 
+    /**
+     * Creates table for Database
+     * @return success of creation
+     */
     public boolean createTable()
     {
         if (DBConnection != null) {
@@ -261,6 +300,10 @@ public class Database
         }
     }
 
+    /**
+     * Gets total rows in database (how many questions)
+     * @return question count in tables
+     */
     public int totalRows()
     {
         ResultSet result;
