@@ -43,9 +43,15 @@ public class Database
     public boolean close()
     {
         try {
-            DBConnection.close();
-            return true;
-        } catch (SQLException e) {
+
+            if (DBConnection != null) {
+                DBConnection.close();
+                return true;
+            } else {
+                return false;
+            }
+
+        } catch (Exception e) {
             return false;
         }
     }

@@ -131,6 +131,16 @@ public class MyQuestionDB
      */
     public boolean cleanUpDB()
     {
-        return (connection.close() && connection.removeTable());
+        boolean allGood = true;
+
+        if (!connection.removeTable()) {
+            allGood = false;
+        }
+
+        if (!connection.close()) {
+            allGood = false;
+        }
+
+        return allGood;
     }
 }
