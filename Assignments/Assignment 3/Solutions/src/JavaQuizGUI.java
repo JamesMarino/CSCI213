@@ -12,5 +12,8 @@ public class JavaQuizGUI
         frame.showQuestion();
         frame.showFrame();
 
+        frame.showMarksResult();
+        frame.showFrame();
+
     }
 }

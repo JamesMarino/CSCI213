@@ -2,6 +2,8 @@ package au.edu.uow.UserInterfaceGUI;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.*;
+import java.util.List;
 
 public class QuizGUIFrame extends JFrame
 {
@@ -33,8 +35,65 @@ public class QuizGUIFrame extends JFrame
 
     }
 
+    public void showMarksResults()
+    {
+        // Clean
+        this.cleanMainPanel();
+
+        // New Panel
+        GridLayout boxLayout = new GridLayout();
+        MainPanel.setLayout(boxLayout);
+
+        // Result Label
+        JLabel resultLabel = new JLabel("My Results");
+        resultLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // Result Button
+        JButton exitButton = new JButton("Exit");
+        exitButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+
+        MainPanel.add(Box.createRigidArea(new Dimension(0, 100)));
+        MainPanel.add(resultLabel);
+        MainPanel.add(Box.createRigidArea(new Dimension(0, 200)));
+        MainPanel.add(exitButton, BOTTOM_ALIGNMENT);
+
+        this.add(MainPanel);
+
+    }
+
+    public void showMarksResult()
+    {
+        // Clean
+        this.cleanMainPanel();
+
+        // New Panel
+        BoxLayout boxLayout = new BoxLayout(MainPanel, BoxLayout.Y_AXIS);
+        MainPanel.setLayout(boxLayout);
+
+        // Result Label
+        JLabel resultLabel = new JLabel("My Results");
+        resultLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // Result Button
+        JButton exitButton = new JButton("Exit");
+        exitButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+
+        MainPanel.add(Box.createRigidArea(new Dimension(0, 100)));
+        MainPanel.add(resultLabel);
+        MainPanel.add(Box.createRigidArea(new Dimension(0, 200)));
+        MainPanel.add(exitButton);
+
+        this.add(MainPanel);
+
+    }
+
     public void showQuestion()
     {
+
+        int choices = 2;
+
         // Clean
         this.cleanMainPanel();
 
@@ -47,7 +106,6 @@ public class QuizGUIFrame extends JFrame
         /*
          * Question Panel
          */
-        // QuestionPanel.setBorder(new EmptyBorder(20, -100, 0, 0));
         // Set Layout
         GridBagLayout questionLayout = new GridBagLayout();
         QuestionPanel.setLayout(questionLayout);
@@ -66,20 +124,42 @@ public class QuizGUIFrame extends JFrame
         // Submit Button
         JButton submit = new JButton("Continue");
 
-        // Radio Buttons
-        JRadioButton test1 = new JRadioButton("Test 1");
-        JRadioButton test2 = new JRadioButton("Test 2");
+        // ----- Edit ------
+        // New Radio Buttons
+        List radioButtonList = new ArrayList<JRadioButton>();
+        for (int i = 0; i < choices; i++) {
+            radioButtonList.add(new JRadioButton("Test Question " + i));
+        }
 
         // Group them
         ButtonGroup buttonGroup = new ButtonGroup();
-        buttonGroup.add(test1);
-        buttonGroup.add(test2);
 
-        // Add
-        ChoicesPanel.add(test1);
-        ChoicesPanel.add(test2);
+        for (Object current : radioButtonList) {
+            buttonGroup.add((JRadioButton) current);
+        }
 
-        ChoicesPanel.add(submit);
+        // Setup Layout
+        BoxLayout buttonLayout = new BoxLayout(ChoicesPanel, BoxLayout.Y_AXIS);
+        ChoicesPanel.setLayout(buttonLayout);
+        submit.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JPanel radioButtonsPanel = new JPanel();
+        BoxLayout radioButtonsLayout = new BoxLayout(radioButtonsPanel, BoxLayout.Y_AXIS);
+        radioButtonsPanel.setLayout(radioButtonsLayout);
+
+        // ----- Edit ------
+        // Add to Panel
+        for (Object current : radioButtonList) {
+            radioButtonsPanel.add((JRadioButton) current);
+        }
+
+        radioButtonsPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        ChoicesPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        ChoicesPanel.add(radioButtonsPanel);
+
+        // Submit Button
+        ChoicesPanel.add(Box.createRigidArea(new Dimension(0, 100)));
+        ChoicesPanel.add(submit, BorderLayout.PAGE_END);
 
         /*
          * Add to Main Panel
@@ -104,9 +184,15 @@ public class QuizGUIFrame extends JFrame
                 "</center></html>");
 
         MainPanel.add(welcomeText);
-        MainPanel.setBorder(BorderFactory.createEmptyBorder(100, 10, 10, 10));
+        MainPanel.setBorder(BorderFactory.createEmptyBorder(10, 150, 10, 10));
 
         this.add(MainPanel);
+    }
+
+    public void showFrame()
+    {
+        // Show the frame
+        this.setVisible(true);
     }
 
     private void cleanMainPanel()
@@ -116,12 +202,6 @@ public class QuizGUIFrame extends JFrame
 
         // Create a fresh instance
         MainPanel = new JPanel();
-    }
-
-    public void showFrame()
-    {
-        // Show the frame
-        this.setVisible(true);
     }
 
     private void addToolBar()
