@@ -2,6 +2,9 @@ package au.edu.uow.UserInterfaceGUI;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowEvent;
 import java.util.*;
 import java.util.List;
 
@@ -12,6 +15,11 @@ public class QuizGUIFrame extends JFrame
     private JPanel QuestionPanel = new JPanel();
     private JPanel ChoicesPanel = new JPanel();
 
+    // Labels
+    private JLabel WelcomeNameLabel = new JLabel("");
+
+    private Student CurrentStudent = new Student();
+
     public QuizGUIFrame(String windowName)
     {
         /*
@@ -21,7 +29,7 @@ public class QuizGUIFrame extends JFrame
         super(windowName);
 
         // Close operation
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         // Set the size
         this.setSize(650, 450);
@@ -171,20 +179,34 @@ public class QuizGUIFrame extends JFrame
         this.add(MainPanel);
     }
 
+    private void setWelcomeName()
+    {
+
+        WelcomeNameLabel.setText(
+            "<html><center>" +
+            "<p style='color:blue;font-weight:bold;font-size:24px;'>Java Quiz</p><br>" +
+            "<p>Created By:</p>" +
+            "<p>" + CurrentStudent.getName() + "</p>" +
+            "</center></html>"
+        );
+    }
+
     public void addWelcomeScreen()
     {
         // Clean
         this.cleanMainPanel();
 
-        JLabel welcomeText = new JLabel(
+        WelcomeNameLabel.setText(
                 "<html><center>" +
                 "<p style='color:blue;font-weight:bold;font-size:24px;'>Java Quiz</p><br>" +
                 "<p>Created By:</p>" +
-                "<p>James Marino</p>" +
+                "<p></p>" +
                 "</center></html>");
 
-        MainPanel.add(welcomeText);
-        MainPanel.setBorder(BorderFactory.createEmptyBorder(10, 150, 10, 10));
+        MainPanel.add(WelcomeNameLabel);
+
+        GridBagLayout layout = new GridBagLayout();
+        MainPanel.setLayout(layout);
 
         this.add(MainPanel);
     }
@@ -212,8 +234,8 @@ public class QuizGUIFrame extends JFrame
         JButton scoreButton = new JButton("Score");
         JButton exitButton = new JButton("Exit");
         JLabel nameLabel = new JLabel("Your Name: ");
-        JTextField nameField = new JTextField();
-        JButton registerButton = new JButton("Register");
+        final JTextField nameField = new JTextField();
+        final JButton registerButton = new JButton("Register");
 
         // Toolbar properties
         toolBar.setFloatable(false);
@@ -231,5 +253,59 @@ public class QuizGUIFrame extends JFrame
 
         // Add to frame
         this.add(toolBar, BorderLayout.NORTH);
+
+        /*
+         * Listeners
+         */
+        registerButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+
+                if (!nameField.getText().equals("") && registerButton.isEnabled()) {
+
+                    // Set the name
+                    CurrentStudent.setName(nameField.getText());
+
+                    // Set the label
+                    setWelcomeName();
+
+                    // Go to the next frame
+                    showQuestion();
+                    showFrame();
+
+                    // Disable Elements
+                    registerButton.setEnabled(false);
+                    nameField.setEnabled(false);
+                }
+            }
+        });
+
+        exitButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+
+                System.exit(0);
+
+            }
+        });
+
+        scoreButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+
+                // Test For empty student record
+                if (!CurrentStudent.getName().equals("")) {
+
+                    // All good, diplay score
+
+
+                } else {
+                    // Error Box
+
+                }
+
+            }
+        });
+
     }
 }
