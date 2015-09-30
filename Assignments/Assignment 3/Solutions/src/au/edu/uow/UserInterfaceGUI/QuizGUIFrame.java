@@ -1,16 +1,19 @@
 package au.edu.uow.UserInterfaceGUI;
 
+import au.edu.uow.QuestionLibrary.Question;
+import au.edu.uow.QuestionLibrary.QuestionLibrary;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.WindowEvent;
 import java.util.*;
 import java.util.List;
 
 public class QuizGUIFrame extends JFrame
 {
 
+    // Panels
     private JPanel MainPanel = new JPanel();
     private JPanel QuestionPanel = new JPanel();
     private JPanel ChoicesPanel = new JPanel();
@@ -18,7 +21,14 @@ public class QuizGUIFrame extends JFrame
     // Labels
     private JLabel WelcomeNameLabel = new JLabel("");
 
+    // Buttons
+    private JButton NextQuestionButton = new JButton("Continue");
+
+    // Data
     private Student CurrentStudent = new Student();
+    private static int QuestionPosition = 0;
+    private static int QuestionListSize = 0;
+    private List<Question> QuizData;
 
     public QuizGUIFrame(String windowName)
     {
@@ -40,6 +50,24 @@ public class QuizGUIFrame extends JFrame
         // Add the toolbar to the frame
         this.addToolBar();
 
+        /*
+         * Generate Quiz
+         */
+        QuestionLibrary myQuestionDB = new QuestionLibrary();
+        boolean questionList = myQuestionDB.buildLibrary("/Users/james/UOW/CSCI213 (Java)/Assignments/Assignment 3/Solutions/src/data/questions.xml");
+        QuizData = myQuestionDB.makeQuiz(5);
+
+        // Set event listener - next question
+        NextQuestionButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+
+                // Show another question
+                showQuestion();
+                showFrame();
+
+            }
+        });
 
     }
 
@@ -100,10 +128,13 @@ public class QuizGUIFrame extends JFrame
     public void showQuestion()
     {
 
-        int choices = 2;
+        // Current Question
+        Question question = QuizData.get(QuestionPosition);
 
         // Clean
         this.cleanMainPanel();
+
+        MainPanel.removeAll();
 
         // New Layout
         GridLayout mainLayout = new GridLayout(2, 1);
@@ -119,9 +150,8 @@ public class QuizGUIFrame extends JFrame
         QuestionPanel.setLayout(questionLayout);
 
         // Add Content
-        JLabel questionText = new JLabel("<html>test1" +
-                "<br>Sentsvvsg shshbs " +
-                "bsbsbhs bshb sbhsb sbh</html>");
+        JLabel questionText = new JLabel("<html>" + question.getQuestion().get(0) +
+                "</html>");
         QuestionPanel.setBackground(Color.WHITE);
         QuestionPanel.add(questionText);
 
@@ -135,8 +165,8 @@ public class QuizGUIFrame extends JFrame
         // ----- Edit ------
         // New Radio Buttons
         List radioButtonList = new ArrayList<JRadioButton>();
-        for (int i = 0; i < choices; i++) {
-            radioButtonList.add(new JRadioButton("Test Question " + i));
+        for (int i = 0; i < question.getChoices().size(); i++) {
+            radioButtonList.add(new JRadioButton(question.getChoices().get(i)));
         }
 
         // Group them
@@ -149,7 +179,7 @@ public class QuizGUIFrame extends JFrame
         // Setup Layout
         BoxLayout buttonLayout = new BoxLayout(ChoicesPanel, BoxLayout.Y_AXIS);
         ChoicesPanel.setLayout(buttonLayout);
-        submit.setAlignmentX(Component.CENTER_ALIGNMENT);
+        NextQuestionButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JPanel radioButtonsPanel = new JPanel();
         BoxLayout radioButtonsLayout = new BoxLayout(radioButtonsPanel, BoxLayout.Y_AXIS);
@@ -167,7 +197,7 @@ public class QuizGUIFrame extends JFrame
 
         // Submit Button
         ChoicesPanel.add(Box.createRigidArea(new Dimension(0, 100)));
-        ChoicesPanel.add(submit, BorderLayout.PAGE_END);
+        ChoicesPanel.add(NextQuestionButton, BorderLayout.PAGE_END);
 
         /*
          * Add to Main Panel
@@ -177,6 +207,10 @@ public class QuizGUIFrame extends JFrame
 
         // Add to frame
         this.add(MainPanel);
+
+        // Go to next question
+        QuestionPosition++;
+
     }
 
     private void setWelcomeName()
@@ -276,6 +310,7 @@ public class QuizGUIFrame extends JFrame
                     // Disable Elements
                     registerButton.setEnabled(false);
                     nameField.setEnabled(false);
+
                 }
             }
         });
@@ -296,7 +331,7 @@ public class QuizGUIFrame extends JFrame
                 // Test For empty student record
                 if (!CurrentStudent.getName().equals("")) {
 
-                    // All good, diplay score
+                    // All good, display score
 
 
                 } else {
