@@ -15,19 +15,18 @@ public class QuizGUIFrame extends JFrame
 
     // Panels
     private JPanel MainPanel = new JPanel();
-    private JPanel QuestionPanel = new JPanel();
-    private JPanel ChoicesPanel = new JPanel();
 
     // Labels
     private JLabel WelcomeNameLabel = new JLabel("");
 
     // Buttons
     private JButton NextQuestionButton = new JButton("Continue");
+    private List CurrentRadioButtons = new ArrayList<JRadioButton>();
 
     // Data
     private Student CurrentStudent = new Student();
     private static int QuestionPosition = 0;
-    private static int QuestionListSize = 0;
+    private static int TotalQuestions = 0;
     private List<Question> QuizData;
 
     public QuizGUIFrame(String windowName)
@@ -53,9 +52,12 @@ public class QuizGUIFrame extends JFrame
         /*
          * Generate Quiz
          */
+        // Set max quiz
+        TotalQuestions = 10;
+
         QuestionLibrary myQuestionDB = new QuestionLibrary();
         boolean questionList = myQuestionDB.buildLibrary("/Users/james/UOW/CSCI213 (Java)/Assignments/Assignment 3/Solutions/src/data/questions.xml");
-        QuizData = myQuestionDB.makeQuiz(5);
+        QuizData = myQuestionDB.makeQuiz(TotalQuestions);
 
         // Set event listener - next question
         NextQuestionButton.addMouseListener(new MouseAdapter() {
@@ -63,38 +65,47 @@ public class QuizGUIFrame extends JFrame
             public void mousePressed(MouseEvent e) {
 
                 // Show another question
-                showQuestion();
-                showFrame();
+                if (QuestionPosition < TotalQuestions) {
+
+                    // Get Current Quiz Question
+                    Question currentQuestion = QuizData.get(QuestionPosition);
+
+                    for (int i = 0; i < CurrentRadioButtons.size(); i++) {
+
+                        // Get the selected response
+                        JRadioButton currentRadioButton = (JRadioButton) CurrentRadioButtons.get(i);
+
+                        if (currentRadioButton.isSelected()) {
+
+                            System.out.println("Selected: " + i);
+                            System.out.println("Answer: " + currentQuestion.getAnswer());
+                            System.out.println("Question: " + currentQuestion.getQuestion().get(0));
+
+                            // Check if current question answered is correct
+                            if (currentQuestion.compareAnswer(i)) {
+                                // Add a point
+                                System.out.println("Correct");
+                                CurrentStudent.recordScore(true);
+                            }
+
+                        }
+
+                    }
+
+                    // Go to next question
+                    showQuestion();
+                    showFrame();
+
+                } else {
+
+                    // Show marking
+                    showMarksResult();
+                    showFrame();
+
+                }
 
             }
         });
-
-    }
-
-    public void showMarksResults()
-    {
-        // Clean
-        this.cleanMainPanel();
-
-        // New Panel
-        GridLayout boxLayout = new GridLayout();
-        MainPanel.setLayout(boxLayout);
-
-        // Result Label
-        JLabel resultLabel = new JLabel("My Results");
-        resultLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        // Result Button
-        JButton exitButton = new JButton("Exit");
-        exitButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-
-        MainPanel.add(Box.createRigidArea(new Dimension(0, 100)));
-        MainPanel.add(resultLabel);
-        MainPanel.add(Box.createRigidArea(new Dimension(0, 200)));
-        MainPanel.add(exitButton, BOTTOM_ALIGNMENT);
-
-        this.add(MainPanel);
 
     }
 
@@ -108,7 +119,7 @@ public class QuizGUIFrame extends JFrame
         MainPanel.setLayout(boxLayout);
 
         // Result Label
-        JLabel resultLabel = new JLabel("My Results");
+        JLabel resultLabel = new JLabel("My Results: " + CurrentStudent.getScore());
         resultLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // Result Button
@@ -127,17 +138,24 @@ public class QuizGUIFrame extends JFrame
 
     public void showQuestion()
     {
+        // Panels
+        JPanel QuestionPanel = new JPanel();
+        JPanel ChoicesPanel = new JPanel();
 
         // Current Question
         Question question = QuizData.get(QuestionPosition);
 
         // Clean
         this.cleanMainPanel();
+        //MainPanel.removeAll();
+        //MainPanel.validate();
+        //MainPanel.repaint();
 
-        MainPanel.removeAll();
+        // Remove label from panel
+        QuestionPanel.removeAll();
 
         // New Layout
-        GridLayout mainLayout = new GridLayout(2, 1);
+        GridLayout mainLayout = new GridLayout(3, 1);
 
         // Setup
         MainPanel.setLayout(mainLayout);
@@ -149,9 +167,17 @@ public class QuizGUIFrame extends JFrame
         GridBagLayout questionLayout = new GridBagLayout();
         QuestionPanel.setLayout(questionLayout);
 
+
         // Add Content
-        JLabel questionText = new JLabel("<html>" + question.getQuestion().get(0) +
-                "</html>");
+        String finalQuestion = "<html>";
+        for (String current : question.getQuestion()) {
+            finalQuestion += current;
+        }
+        finalQuestion += "</html>";
+
+        JLabel questionText = new JLabel(finalQuestion);
+
+
         QuestionPanel.setBackground(Color.WHITE);
         QuestionPanel.add(questionText);
 
@@ -159,20 +185,21 @@ public class QuizGUIFrame extends JFrame
         /*
          * Choice Panel
          */
-        // Submit Button
-        JButton submit = new JButton("Continue");
+
+        // Remove Elements from panel
+        ChoicesPanel.removeAll();
 
         // ----- Edit ------
         // New Radio Buttons
-        List radioButtonList = new ArrayList<JRadioButton>();
+        CurrentRadioButtons = new ArrayList<JRadioButton>();
         for (int i = 0; i < question.getChoices().size(); i++) {
-            radioButtonList.add(new JRadioButton(question.getChoices().get(i)));
+            CurrentRadioButtons.add(new JRadioButton(question.getChoices().get(i)));
         }
 
         // Group them
         ButtonGroup buttonGroup = new ButtonGroup();
 
-        for (Object current : radioButtonList) {
+        for (Object current : CurrentRadioButtons) {
             buttonGroup.add((JRadioButton) current);
         }
 
@@ -187,7 +214,7 @@ public class QuizGUIFrame extends JFrame
 
         // ----- Edit ------
         // Add to Panel
-        for (Object current : radioButtonList) {
+        for (Object current : CurrentRadioButtons) {
             radioButtonsPanel.add((JRadioButton) current);
         }
 
@@ -195,15 +222,22 @@ public class QuizGUIFrame extends JFrame
         ChoicesPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         ChoicesPanel.add(radioButtonsPanel);
 
-        // Submit Button
-        ChoicesPanel.add(Box.createRigidArea(new Dimension(0, 100)));
-        ChoicesPanel.add(NextQuestionButton, BorderLayout.PAGE_END);
+        // --- Add Submit Button ---
+        JPanel submitPanel = new JPanel();
+        submitPanel.setLayout(new GridBagLayout());
+
+        GridBagConstraints c = new GridBagConstraints();
+        c.anchor = GridBagConstraints.PAGE_END;
+        c.insets = new Insets(10,0,0,0);
+
+        submitPanel.add(NextQuestionButton, c);
 
         /*
          * Add to Main Panel
          */
         MainPanel.add(QuestionPanel);
         MainPanel.add(ChoicesPanel);
+        MainPanel.add(submitPanel);
 
         // Add to frame
         this.add(MainPanel);
@@ -258,6 +292,8 @@ public class QuizGUIFrame extends JFrame
 
         // Create a fresh instance
         MainPanel = new JPanel();
+        MainPanel.revalidate();
+        MainPanel.repaint();
     }
 
     private void addToolBar()
