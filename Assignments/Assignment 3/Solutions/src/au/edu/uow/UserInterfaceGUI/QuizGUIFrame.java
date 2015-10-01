@@ -25,9 +25,11 @@ public class QuizGUIFrame extends JFrame
 
     // Data
     private Student CurrentStudent = new Student();
-    private static int QuestionPosition = 0;
-    private static int TotalQuestions = 0;
     private List<Question> QuizData;
+
+    private static int QuestionPosition = 0;
+    private static int TotalQuestions = 5;
+    private static String QuestionsFile = "/Users/james/UOW/CSCI213 (Java)/Assignments/Assignment 3/Solutions/src/data/questions.xml";
 
     public QuizGUIFrame(String windowName)
     {
@@ -50,62 +52,75 @@ public class QuizGUIFrame extends JFrame
         this.addToolBar();
 
         /*
+         * Setup Student
+         */
+        CurrentStudent.setName("");
+
+        /*
          * Generate Quiz
          */
-        // Set max quiz
-        TotalQuestions = 10;
+        boolean questionList = QuestionLibrary.buildLibrary(QuestionsFile);
 
-        QuestionLibrary myQuestionDB = new QuestionLibrary();
-        boolean questionList = myQuestionDB.buildLibrary("/Users/james/UOW/CSCI213 (Java)/Assignments/Assignment 3/Solutions/src/data/questions.xml");
-        QuizData = myQuestionDB.makeQuiz(TotalQuestions);
+        // Check for error generating quiz
+        if (questionList) {
 
-        // Set event listener - next question
-        NextQuestionButton.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
+            QuizData = QuestionLibrary.makeQuiz(TotalQuestions);
 
-                // Show another question
-                if (QuestionPosition < TotalQuestions) {
+            // Set event listener - next question
+            NextQuestionButton.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mousePressed(MouseEvent e) {
 
-                    // Get Current Quiz Question
-                    Question currentQuestion = QuizData.get(QuestionPosition);
+                    // Show another question
+                    if (QuestionPosition < TotalQuestions) {
 
-                    for (int i = 0; i < CurrentRadioButtons.size(); i++) {
+                        // Get the last Current Quiz Question
+                        Question currentQuestion = QuizData.get(QuestionPosition - 1);
 
-                        // Get the selected response
-                        JRadioButton currentRadioButton = (JRadioButton) CurrentRadioButtons.get(i);
+                        for (int i = 0; i < CurrentRadioButtons.size(); i++) {
 
-                        if (currentRadioButton.isSelected()) {
+                            // Get the selected response
+                            JRadioButton currentRadioButton = (JRadioButton) CurrentRadioButtons.get(i);
 
-                            System.out.println("Selected: " + i);
-                            System.out.println("Answer: " + currentQuestion.getAnswer());
-                            System.out.println("Question: " + currentQuestion.getQuestion().get(0));
+                            if (currentRadioButton.isSelected()) {
 
-                            // Check if current question answered is correct
-                            if (currentQuestion.compareAnswer(i)) {
-                                // Add a point
-                                System.out.println("Correct");
-                                CurrentStudent.recordScore(true);
+                                // Check if current question answered is correct
+                                // + 1 to counteract for 1 based answer values
+                                if (currentQuestion.compareAnswer(i + 1)) {
+                                    // Add a point
+                                    CurrentStudent.recordScore(true);
+                                }
+
                             }
 
                         }
 
+                        // Go to next question
+                        showQuestion();
+                        showFrame();
+
+                    } else {
+
+                        // Show marking
+                        showMarksResult();
+                        showFrame();
+
                     }
 
-                    // Go to next question
-                    showQuestion();
-                    showFrame();
-
-                } else {
-
-                    // Show marking
-                    showMarksResult();
-                    showFrame();
-
                 }
+            });
 
-            }
-        });
+        } else {
+
+            // Dialogue telling user there is error
+            JOptionPane.showMessageDialog(MainPanel.getParent(),
+                    "Could not open Questions File.\nWill close now.",
+                    "Fatal Error",
+                    JOptionPane.ERROR_MESSAGE);
+
+            // Quit on OK
+            System.exit(0);
+        }
 
     }
 
@@ -119,7 +134,7 @@ public class QuizGUIFrame extends JFrame
         MainPanel.setLayout(boxLayout);
 
         // Result Label
-        JLabel resultLabel = new JLabel("My Results: " + CurrentStudent.getScore());
+        JLabel resultLabel = new JLabel("Results of " + CurrentStudent.getName() + ": " + CurrentStudent.getScore() + " out of " + TotalQuestions);
         resultLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // Result Button
@@ -147,9 +162,6 @@ public class QuizGUIFrame extends JFrame
 
         // Clean
         this.cleanMainPanel();
-        //MainPanel.removeAll();
-        //MainPanel.validate();
-        //MainPanel.repaint();
 
         // Remove label from panel
         QuestionPanel.removeAll();
@@ -177,16 +189,14 @@ public class QuizGUIFrame extends JFrame
 
         JLabel questionText = new JLabel(finalQuestion);
 
-
         QuestionPanel.setBackground(Color.WHITE);
         QuestionPanel.add(questionText);
-
 
         /*
          * Choice Panel
          */
 
-        // Remove Elements from panel
+        // Remove Elements from choices panel
         ChoicesPanel.removeAll();
 
         // ----- Edit ------
@@ -212,7 +222,6 @@ public class QuizGUIFrame extends JFrame
         BoxLayout radioButtonsLayout = new BoxLayout(radioButtonsPanel, BoxLayout.Y_AXIS);
         radioButtonsPanel.setLayout(radioButtonsLayout);
 
-        // ----- Edit ------
         // Add to Panel
         for (Object current : CurrentRadioButtons) {
             radioButtonsPanel.add((JRadioButton) current);
@@ -226,11 +235,11 @@ public class QuizGUIFrame extends JFrame
         JPanel submitPanel = new JPanel();
         submitPanel.setLayout(new GridBagLayout());
 
-        GridBagConstraints c = new GridBagConstraints();
-        c.anchor = GridBagConstraints.PAGE_END;
-        c.insets = new Insets(10,0,0,0);
+        GridBagConstraints padding = new GridBagConstraints();
+        padding.anchor = GridBagConstraints.PAGE_END;
+        padding.insets = new Insets(10,0,0,0);
 
-        submitPanel.add(NextQuestionButton, c);
+        submitPanel.add(NextQuestionButton, padding);
 
         /*
          * Add to Main Panel
@@ -249,7 +258,7 @@ public class QuizGUIFrame extends JFrame
 
     private void setWelcomeName()
     {
-
+        // Use HTML
         WelcomeNameLabel.setText(
             "<html><center>" +
             "<p style='color:blue;font-weight:bold;font-size:24px;'>Java Quiz</p><br>" +
@@ -290,7 +299,7 @@ public class QuizGUIFrame extends JFrame
         // Remove the panel
         this.remove(MainPanel);
 
-        // Create a fresh instance
+        // Create a fresh instance and reshow
         MainPanel = new JPanel();
         MainPanel.revalidate();
         MainPanel.repaint();
@@ -300,6 +309,7 @@ public class QuizGUIFrame extends JFrame
     {
         // Create elements
         JToolBar toolBar = new JToolBar();
+
         // Sub elements
         JButton scoreButton = new JButton("Score");
         JButton exitButton = new JButton("Exit");
@@ -347,6 +357,12 @@ public class QuizGUIFrame extends JFrame
                     registerButton.setEnabled(false);
                     nameField.setEnabled(false);
 
+                } else {
+                    // Error Box
+                    JOptionPane.showMessageDialog(MainPanel.getParent(),
+                            "Do not leave name blank.",
+                            "Register Error",
+                            JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -355,6 +371,7 @@ public class QuizGUIFrame extends JFrame
             @Override
             public void mousePressed(MouseEvent e) {
 
+                // Harsh exit
                 System.exit(0);
 
             }
@@ -368,10 +385,18 @@ public class QuizGUIFrame extends JFrame
                 if (!CurrentStudent.getName().equals("")) {
 
                     // All good, display score
-
+                    JOptionPane.showMessageDialog(MainPanel.getParent(),
+                            "Current score of " + CurrentStudent.getName() +
+                            " is " + CurrentStudent.getScore(),
+                            "Score Check",
+                            JOptionPane.ERROR_MESSAGE);
 
                 } else {
                     // Error Box
+                    JOptionPane.showMessageDialog(MainPanel.getParent(),
+                            "Cannot check score if not registered!",
+                            "Score Check Error",
+                            JOptionPane.ERROR_MESSAGE);
 
                 }
 
