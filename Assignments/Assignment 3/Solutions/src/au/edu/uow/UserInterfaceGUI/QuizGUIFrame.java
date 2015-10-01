@@ -5,6 +5,8 @@ import au.edu.uow.QuestionLibrary.QuestionLibrary;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.*;
@@ -20,7 +22,7 @@ public class QuizGUIFrame extends JFrame
     private JLabel WelcomeNameLabel = new JLabel("");
 
     // Buttons
-    private JButton NextQuestionButton = new JButton("Continue");
+    private JButton NextQuestionButton = new JButton("Next");
     private List CurrentRadioButtons = new ArrayList<JRadioButton>();
 
     // Data
@@ -149,6 +151,15 @@ public class QuizGUIFrame extends JFrame
 
         this.add(MainPanel);
 
+        exitButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+
+                System.exit(0);
+
+            }
+        });
+
     }
 
     public void showQuestion()
@@ -239,6 +250,11 @@ public class QuizGUIFrame extends JFrame
         padding.anchor = GridBagConstraints.PAGE_END;
         padding.insets = new Insets(10,0,0,0);
 
+        // Check if it's the last question, if so change the button name
+        if ((QuestionPosition + 1) == TotalQuestions) {
+            NextQuestionButton.setText("Get Marks");
+        }
+
         submitPanel.add(NextQuestionButton, padding);
 
         /*
@@ -277,7 +293,7 @@ public class QuizGUIFrame extends JFrame
                 "<html><center>" +
                 "<p style='color:blue;font-weight:bold;font-size:24px;'>Java Quiz</p><br>" +
                 "<p>Created By:</p>" +
-                "<p></p>" +
+                "<p>You</p>" +
                 "</center></html>");
 
         MainPanel.add(WelcomeNameLabel);
@@ -337,6 +353,38 @@ public class QuizGUIFrame extends JFrame
         /*
          * Listeners
          */
+        nameField.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                // Do the click
+                if (!nameField.getText().equals("") && registerButton.isEnabled()) {
+
+                    // Set the name
+                    CurrentStudent.setName(nameField.getText());
+
+                    // Set the label
+                    setWelcomeName();
+
+                    // Go to the next frame
+                    showQuestion();
+                    showFrame();
+
+                    // Disable Elements
+                    registerButton.setEnabled(false);
+                    nameField.setEnabled(false);
+
+                } else {
+                    // Error Box
+                    JOptionPane.showMessageDialog(MainPanel.getParent(),
+                            "Do not leave name blank.",
+                            "Register Error",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+
+            }
+        });
+
         registerButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
