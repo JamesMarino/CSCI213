@@ -12,6 +12,13 @@ import java.awt.event.MouseEvent;
 import java.util.*;
 import java.util.List;
 
+/**
+ * GUI Functionality
+ * @author Subject Code: CSCI213
+ * @author Name: James Marino
+ * @author Student Number: 4720994
+ * @author Login: jm617
+ */
 public class QuizGUIFrame extends JFrame
 {
 
@@ -32,6 +39,11 @@ public class QuizGUIFrame extends JFrame
     private static int QuestionPosition = 0;
     private static int TotalQuestions = 0;
 
+    /**
+     * Constructor
+     * @param windowName Name of window
+     * @param properties Properties of App
+     */
     public QuizGUIFrame(String windowName, Properties properties)
     {
         /*
@@ -131,6 +143,9 @@ public class QuizGUIFrame extends JFrame
 
     }
 
+    /**
+     * GUI display marks result
+     */
     public void showMarksResult()
     {
         // Clean Panel
@@ -167,6 +182,9 @@ public class QuizGUIFrame extends JFrame
 
     }
 
+    /**
+     * GUI Display a new question
+     */
     public void showQuestion()
     {
         // Panels
@@ -275,6 +293,9 @@ public class QuizGUIFrame extends JFrame
 
     }
 
+    /**
+     * Setter for Welcome Name Label
+     */
     private void setWelcomeName()
     {
         // Use HTML
@@ -287,6 +308,9 @@ public class QuizGUIFrame extends JFrame
         );
     }
 
+    /**
+     * Show welcome screen
+     */
     public void addWelcomeScreen()
     {
         // Clean
@@ -307,12 +331,18 @@ public class QuizGUIFrame extends JFrame
         this.add(MainPanel);
     }
 
+    /**
+     * Update and show the Main Frame
+     */
     public void showFrame()
     {
         // Show the frame
         this.setVisible(true);
     }
 
+    /**
+     * Remove panels from Main Frame
+     */
     private void cleanMainPanel()
     {
         // Remove the panel
@@ -324,6 +354,9 @@ public class QuizGUIFrame extends JFrame
         MainPanel.repaint();
     }
 
+    /**
+     * Add toolbar to main frame
+     */
     private void addToolBar()
     {
         // Create elements

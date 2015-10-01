@@ -5,6 +5,13 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+/**
+ * App entry point
+ * @author Subject Code: CSCI213
+ * @author Name: James Marino
+ * @author Student Number: 4720994
+ * @author Login: jm617
+ */
 public class JavaQuizGUI
 {
     public static void main(String[] args)
@@ -24,6 +31,10 @@ public class JavaQuizGUI
 
     }
 
+    /**
+     * Sets properties from JavaQuizGUI.conf
+     * @return Properties instance
+     */
     private static Properties setProperties()
     {
         // Properties
@@ -46,6 +57,10 @@ public class JavaQuizGUI
 
     }
 
+    /**
+     * Setter for 'Look and Feel'
+     * @param properties Full properties object
+     */
     private static void setLookAndFeel(Properties properties)
     {
         try {
