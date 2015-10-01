@@ -30,10 +30,9 @@ public class QuizGUIFrame extends JFrame
     private List<Question> QuizData;
 
     private static int QuestionPosition = 0;
-    private static int TotalQuestions = 5;
-    private static String QuestionsFile = "/Users/james/UOW/CSCI213 (Java)/Assignments/Assignment 3/Solutions/src/data/questions.xml";
+    private static int TotalQuestions = 0;
 
-    public QuizGUIFrame(String windowName)
+    public QuizGUIFrame(String windowName, Properties properties)
     {
         /*
          * Set up frame
@@ -45,7 +44,8 @@ public class QuizGUIFrame extends JFrame
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         // Set the size
-        this.setSize(650, 450);
+        this.setSize(Integer.parseInt(properties.getProperty("SizeWidth")),
+                Integer.parseInt(properties.getProperty("SizeHeight")));
 
         // Set position on screen centre
         this.setLocationRelativeTo(null);
@@ -59,9 +59,14 @@ public class QuizGUIFrame extends JFrame
         CurrentStudent.setName("");
 
         /*
+         * Setup Properties
+         */
+        TotalQuestions = Integer.parseInt(properties.getProperty("NumberOfQuestions"));
+
+        /*
          * Generate Quiz
          */
-        boolean questionList = QuestionLibrary.buildLibrary(QuestionsFile);
+        boolean questionList = QuestionLibrary.buildLibrary(properties.getProperty("QuestionFileName"));
 
         // Check for error generating quiz
         if (questionList) {
@@ -128,7 +133,7 @@ public class QuizGUIFrame extends JFrame
 
     public void showMarksResult()
     {
-        // Clean
+        // Clean Panel
         this.cleanMainPanel();
 
         // New Panel
@@ -190,7 +195,6 @@ public class QuizGUIFrame extends JFrame
         GridBagLayout questionLayout = new GridBagLayout();
         QuestionPanel.setLayout(questionLayout);
 
-
         // Add Content
         String finalQuestion = "<html>";
         for (String current : question.getQuestion()) {
@@ -210,7 +214,6 @@ public class QuizGUIFrame extends JFrame
         // Remove Elements from choices panel
         ChoicesPanel.removeAll();
 
-        // ----- Edit ------
         // New Radio Buttons
         CurrentRadioButtons = new ArrayList<JRadioButton>();
         for (int i = 0; i < question.getChoices().size(); i++) {
@@ -437,7 +440,7 @@ public class QuizGUIFrame extends JFrame
                             "Current score of " + CurrentStudent.getName() +
                             " is " + CurrentStudent.getScore(),
                             "Score Check",
-                            JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.INFORMATION_MESSAGE);
 
                 } else {
                     // Error Box
