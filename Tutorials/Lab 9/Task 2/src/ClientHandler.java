@@ -1,10 +1,13 @@
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Scanner;
 
 public class ClientHandler implements Runnable
 {
@@ -20,22 +23,39 @@ public class ClientHandler implements Runnable
     {
         try {
 
-            // InputStream inputStream = Incoming.getInputStream();
+            InputStream inputStream = Incoming.getInputStream();
             OutputStream outputStream = Incoming.getOutputStream();
 
-            // display client information at server
-            System.out.println("Client is connected");
-
-            // Send the time at server to the client
+            Scanner in = new Scanner(inputStream);
             PrintWriter out = new PrintWriter(outputStream, true);
 
-            out.println("The time at MyServer is " + getTime());
+            out.println("Enter Command:");
 
-            Incoming.close();
-            System.out.println("Client is disconnected");
+            boolean done = false;
+
+            while (!done && in.hasNext()) {
+                String line = in.nextLine();
+
+                if (line.trim().equals("BYE")) {
+                    out.println("Goodbye...");
+                    done = true;
+                } else if (line.trim().equals("TIME")) {
+                    out.println("Time is " + getTime());
+                } else if (line.trim().equals("HOSTNAME")) {
+                    out.println("Host Name is " + InetAddress.getLocalHost().getHostName());
+                } else {
+                    out.println("Are you an alien?");
+                }
+            }
 
         } catch (IOException ioe) {
             System.out.println("Error: " + ioe.getMessage());
+        } finally {
+            try {
+                Incoming.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
     }

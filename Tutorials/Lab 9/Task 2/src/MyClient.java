@@ -1,3 +1,4 @@
+import java.io.PrintWriter;
 import java.net.*;
 import java.util.Scanner;
 
@@ -14,9 +15,25 @@ public class MyClient
 		{
 			Socket socket = new Socket (args[0], 8000);
 
+			PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 			Scanner in = new Scanner(socket.getInputStream());
+
 			System.out.println(in.nextLine());
 
+			Scanner stdIn = new Scanner(System.in);
+			String userInput;
+
+			while ((userInput = stdIn.nextLine()) != null) {
+				out.println(userInput);
+
+				if (!"BYE".equals(userInput)) {
+					System.out.println(in.nextLine());
+				} else {
+					break;
+				}
+			}
+
+			out.close();
 			in.close();
 			socket.close();
 		}
