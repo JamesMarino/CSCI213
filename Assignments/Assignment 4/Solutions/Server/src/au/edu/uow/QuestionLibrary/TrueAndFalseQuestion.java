@@ -1,5 +1,6 @@
 package au.edu.uow.QuestionLibrary;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +11,7 @@ import java.util.List;
  * @author Student Number: 4720994
  * @author Login: jm617
  */
-class TrueAndFalseQuestion implements Question
+public class TrueAndFalseQuestion implements Question, Serializable
 {
 
     // Properties

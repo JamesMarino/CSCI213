@@ -1,19 +1,14 @@
 package au.edu.uow.Networking;
 
-import au.edu.uow.QuestionLibrary.Question;
-import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
+import au.edu.uow.QuestionLibrary.MultipleChoiceQuestion;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 
 public class JavaClientHandler implements Runnable
 {
     private Socket Incoming;
-    private Question QuestionResponse;
     private String CurrentUser;
 
     /*
@@ -30,7 +25,6 @@ public class JavaClientHandler implements Runnable
     public JavaClientHandler(Socket incoming)
     {
         Incoming = incoming;
-        QuestionResponse = null;
         CurrentUser = "";
     }
 
@@ -39,8 +33,9 @@ public class JavaClientHandler implements Runnable
     {
         try {
 
-            InputStream inputStream = Incoming.getInputStream();
             OutputStream outputStream = Incoming.getOutputStream();
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(Incoming.getOutputStream());
+            InputStream inputStream = Incoming.getInputStream();
 
             Scanner in = new Scanner(inputStream);
             PrintWriter out = new PrintWriter(outputStream, true);
@@ -78,11 +73,13 @@ public class JavaClientHandler implements Runnable
                             System.out.println(CurrentUser + " registered");
 
                             // Return Response
-                            out.println(REGISTER_RESPONSE);
+                            String myObject = REGISTER_RESPONSE;
+                            objectOutputStream.writeObject(myObject);
 
                         } else {
                             // Return Response
-                            out.println(INVALID_REQUEST);
+                            String myObject = INVALID_REQUEST;
+                            objectOutputStream.writeObject(myObject);
                         }
 
                         break;
@@ -95,15 +92,19 @@ public class JavaClientHandler implements Runnable
                             if (split[1].equals(QUESTION_REQUEST_ARG)) {
 
                                 // Return response object
-                                out.println("Object Comes out here");
+                                MultipleChoiceQuestion myObject = new MultipleChoiceQuestion();
+                                objectOutputStream.writeObject(myObject);
 
                             } else {
-                                out.println(INVALID_REQUEST);
+                                // Return Response
+                                String myObject = INVALID_REQUEST;
+                                objectOutputStream.writeObject(myObject);
                             }
 
                         } else {
                             // Return Response
-                            out.println(INVALID_REQUEST);
+                            String myObject = INVALID_REQUEST;
+                            objectOutputStream.writeObject(myObject);
                         }
 
                         break;
@@ -123,7 +124,9 @@ public class JavaClientHandler implements Runnable
                         break;
 
                     default:
-                        out.println(INVALID_REQUEST);
+                        // out.println(INVALID_REQUEST);
+                        String myObject = INVALID_REQUEST;
+                        objectOutputStream.writeObject(myObject);
                         break;
                 }
             }

@@ -1,6 +1,6 @@
-import au.edu.uow.QuestionLibrary.Question;
+import au.edu.uow.QuestionLibrary.MultipleChoiceQuestion;
 
-import java.io.ObjectOutputStream;
+import java.io.ObjectInputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
@@ -15,29 +15,44 @@ public class JavaQuizClient
             Socket socket = new Socket("localhost", 8000);
 
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-            Scanner in = new Scanner(socket.getInputStream());
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+            ObjectInputStream objectIn = new ObjectInputStream(socket.getInputStream());
+            Scanner scannerIn = new Scanner(socket.getInputStream());
 
-            //Question question = ;
-            //objectOutputStream.writeObject();
+            System.out.println(scannerIn.nextLine());
 
-            System.out.println(in.nextLine());
-
-            Scanner stdIn = new Scanner(System.in);
+            Scanner stdin = new Scanner(System.in);
             String userInput;
 
-            while ((userInput = stdIn.nextLine()) != null) {
+            while ((userInput = stdin.nextLine()) != null) {
+
                 out.println(userInput);
 
                 if (!"BYE".equals(userInput)) {
-                    System.out.println(in.nextLine());
+
+                    try {
+
+                        Object object = objectIn.readObject();
+
+                        if (object.getClass() == String.class) {
+                            String response = (String)object;
+                            System.out.println(response);
+                        } else if (object.getClass() == MultipleChoiceQuestion.class) {
+                            MultipleChoiceQuestion response = (MultipleChoiceQuestion)object;
+                            System.out.println(response);
+                        }
+
+                    } catch (Exception e) {
+                        System.out.println("Response Error");
+                        e.printStackTrace();
+                    }
+
                 } else {
                     break;
                 }
             }
 
             out.close();
-            in.close();
+            scannerIn.close();
             socket.close();
         }
         catch (Exception e)
