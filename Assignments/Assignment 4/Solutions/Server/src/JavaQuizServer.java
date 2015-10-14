@@ -1,21 +1,26 @@
 import au.edu.uow.Networking.JavaClientHandler;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 public class JavaQuizServer
 {
     private static int Port = 8000;
+    private static final String QUESTION_FILE = "questions.xml";
 
     public static void main(String[] args)
     {
-        try {
 
-            // Get host information
-            String HostName  = InetAddress.getLocalHost().getHostName();
-            String HostIP = InetAddress.getLocalHost().getHostAddress();
+        // Set Port
+        if (args.length > 0) {
+            Port = Integer.parseInt(args[0]);
+        } else {
+            System.out.println("Usage: java JavaQuizServer 12345");
+            System.exit(0);
+        }
+
+        try {
 
             // Display server information
             System.out.println("JavaQuizServer listening at: " + JavaQuizServer.Port);
@@ -25,9 +30,13 @@ public class JavaQuizServer
 
             while (true) {
 
+                // Setup Questions
+                String questionsURL = JavaQuizServer.class.getResource(QUESTION_FILE).getPath();
+                questionsURL = questionsURL.replaceAll("%20", " ");
+
                 Socket incoming = serverSocket.accept();
 
-                Runnable runnable = new JavaClientHandler(incoming);
+                Runnable runnable = new JavaClientHandler(incoming, questionsURL);
                 Thread thread = new Thread(runnable);
                 thread.start();
 

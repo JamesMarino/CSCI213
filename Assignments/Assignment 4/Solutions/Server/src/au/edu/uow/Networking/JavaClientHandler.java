@@ -1,15 +1,18 @@
 package au.edu.uow.Networking;
 
-import au.edu.uow.QuestionLibrary.MultipleChoiceQuestion;
+import au.edu.uow.QuestionLibrary.Question;
+import au.edu.uow.QuestionLibrary.QuestionLibrary;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.List;
 import java.util.Scanner;
 
 public class JavaClientHandler implements Runnable
 {
     private Socket Incoming;
     private String CurrentUser;
+
 
     /*
      * Constants
@@ -22,10 +25,15 @@ public class JavaClientHandler implements Runnable
     private static final String BYE_REQUEST = "BYE";
     private static final String INVALID_REQUEST = "INVALID";
 
-    public JavaClientHandler(Socket incoming)
+    private static final int QUESTIONS = 5;
+
+    public JavaClientHandler(Socket incoming, String questionsFileName)
     {
         Incoming = incoming;
         CurrentUser = "";
+
+        // Create Questions
+        QuestionLibrary.buildLibrary(questionsFileName);
     }
 
     @Override
@@ -91,9 +99,11 @@ public class JavaClientHandler implements Runnable
                             // Check what type
                             if (split[1].equals(QUESTION_REQUEST_ARG)) {
 
+                                // Get Quiz
+                                List<Question> quiz = QuestionLibrary.makeQuiz(QUESTIONS);
+
                                 // Return response object
-                                MultipleChoiceQuestion myObject = new MultipleChoiceQuestion();
-                                objectOutputStream.writeObject(myObject);
+                                objectOutputStream.writeObject(quiz);
 
                             } else {
                                 // Return Response

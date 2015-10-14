@@ -1,4 +1,4 @@
-package au.edu.uow.UserInterface;
+package au.edu.uow.ClientGUI;
 
 /**
  * Single User Access
