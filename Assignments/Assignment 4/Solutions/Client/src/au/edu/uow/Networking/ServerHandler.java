@@ -72,11 +72,12 @@ public class ServerHandler
     {
         Object received;
 
-        // Send
-        Out.println(command);
-
         // Receive Object
         try {
+
+            // Send
+            Out.println(command);
+
             received = ObjectIn.readObject();
         } catch (Exception e) {
             received = null;

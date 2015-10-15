@@ -5,10 +5,7 @@ import au.edu.uow.QuestionLibrary.Question;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +30,8 @@ public class QuizClientGUIFrame extends JFrame
     private static int QuestionPosition = 0;
     private static int TotalQuestions = 0;
 
+    private static final String SUCCESS = "OK";
+
     /**
      *
      */
@@ -48,6 +47,13 @@ public class QuizClientGUIFrame extends JFrame
 
         // Close connection
         serverHandler.close();
+    }
+
+    public boolean registerNameServer(String name)
+    {
+        String response = serverHandler.register(name);
+
+        return response.equals(SUCCESS);
     }
 
     public QuizClientGUIFrame(String windowName)
@@ -74,55 +80,75 @@ public class QuizClientGUIFrame extends JFrame
         /*
          * Setup Student
          */
-        CurrentStudent.setName("");
-
         QuizData = serverHandler.getQuestion();
 
-        TotalQuestions = QuizData.size();
+        // Check for error
+        if (QuizData != null) {
+            TotalQuestions = QuizData.size();
 
-        // Set event listener - next question
-        NextQuestionButton.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
+            // Set event listener - next question
+            NextQuestionButton.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mousePressed(MouseEvent e) {
 
-                // Show another question
-                if (QuestionPosition < TotalQuestions) {
+                    // Show another question
+                    if (QuestionPosition < TotalQuestions) {
 
-                    // Get the last Current Quiz Question
-                    Question currentQuestion = QuizData.get(QuestionPosition - 1);
+                        // Get the last Current Quiz Question
+                        Question currentQuestion = QuizData.get(QuestionPosition - 1);
 
-                    for (int i = 0; i < CurrentRadioButtons.size(); i++) {
+                        for (int i = 0; i < CurrentRadioButtons.size(); i++) {
 
-                        // Get the selected response
-                        JRadioButton currentRadioButton = (JRadioButton) CurrentRadioButtons.get(i);
+                            // Get the selected response
+                            JRadioButton currentRadioButton = (JRadioButton) CurrentRadioButtons.get(i);
 
-                        if (currentRadioButton.isSelected()) {
+                            if (currentRadioButton.isSelected()) {
 
-                            // Check if current question answered is correct
-                            // + 1 to counteract for 1 based answer values
-                            if (currentQuestion.compareAnswer(i + 1)) {
-                                // Add a point
-                                CurrentStudent.recordScore(true);
+                                // Check if current question answered is correct
+                                // + 1 to counteract for 1 based answer values
+                                if (currentQuestion.compareAnswer(i + 1)) {
+                                    // Add a point
+                                    CurrentStudent.recordScore(true);
+                                }
+
                             }
 
                         }
 
+                        // Go to next question
+                        showQuestion();
+                        showFrame();
+
+                    } else {
+
+                        // Show marking
+                        showMarksResult();
+                        showFrame();
+
                     }
 
-                    // Go to next question
-                    showQuestion();
-                    showFrame();
-
-                } else {
-
-                    // Show marking
-                    showMarksResult();
-                    showFrame();
-
                 }
+            });
 
-            }
-        });
+            // Add listener for Window Closing
+            this.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosing(WindowEvent e) {
+
+                    // Close Connection
+                    serverHandler.close();
+                }
+            });
+        } else {
+            // Dialogue telling user there is error
+            JOptionPane.showMessageDialog(MainPanel.getParent(),
+                    "Could not get questions from server.\nWill close now.",
+                    "Fatal Error",
+                    JOptionPane.ERROR_MESSAGE);
+
+            // Quit on OK
+            System.exit(0);
+        }
 
     }
 
@@ -166,6 +192,9 @@ public class QuizClientGUIFrame extends JFrame
         exitButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
+
+                // Close connection
+                serverHandler.close();
 
                 System.exit(0);
 
@@ -376,22 +405,33 @@ public class QuizClientGUIFrame extends JFrame
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                // Do the click
                 if (!nameField.getText().equals("") && registerButton.isEnabled()) {
 
-                    // Set the name
-                    CurrentStudent.setName(nameField.getText());
+                    // Send to server
+                    if (registerNameServer(nameField.getText())) {
 
-                    // Set the label
-                    setWelcomeName();
+                        // Set the name
+                        CurrentStudent.setName(nameField.getText());
 
-                    // Go to the next frame
-                    showQuestion();
-                    showFrame();
 
-                    // Disable Elements
-                    registerButton.setEnabled(false);
-                    nameField.setEnabled(false);
+                        // Set the label
+                        setWelcomeName();
+
+                        // Go to the next frame
+                        showQuestion();
+                        showFrame();
+
+                        // Disable Elements
+                        registerButton.setEnabled(false);
+                        nameField.setEnabled(false);
+
+                    } else {
+                        // Error Box
+                        JOptionPane.showMessageDialog(MainPanel.getParent(),
+                                "The server encountered an error registering name.",
+                                "Register Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
 
                 } else {
                     // Error Box
@@ -410,19 +450,31 @@ public class QuizClientGUIFrame extends JFrame
 
                 if (!nameField.getText().equals("") && registerButton.isEnabled()) {
 
-                    // Set the name
-                    CurrentStudent.setName(nameField.getText());
+                    // Send to server
+                    if (registerNameServer(nameField.getText())) {
 
-                    // Set the label
-                    setWelcomeName();
+                        // Set the name
+                        CurrentStudent.setName(nameField.getText());
 
-                    // Go to the next frame
-                    showQuestion();
-                    showFrame();
 
-                    // Disable Elements
-                    registerButton.setEnabled(false);
-                    nameField.setEnabled(false);
+                        // Set the label
+                        setWelcomeName();
+
+                        // Go to the next frame
+                        showQuestion();
+                        showFrame();
+
+                        // Disable Elements
+                        registerButton.setEnabled(false);
+                        nameField.setEnabled(false);
+
+                    } else {
+                        // Error Box
+                        JOptionPane.showMessageDialog(MainPanel.getParent(),
+                                "The server encountered an error registering name.",
+                                "Register Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
 
                 } else {
                     // Error Box
@@ -437,6 +489,9 @@ public class QuizClientGUIFrame extends JFrame
         exitButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
+
+                // Close Connection
+                serverHandler.close();
 
                 // Harsh exit
                 System.exit(0);
