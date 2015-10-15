@@ -2,6 +2,7 @@ package au.edu.uow.Networking;
 
 import au.edu.uow.QuestionLibrary.Question;
 import au.edu.uow.QuestionLibrary.QuestionLibrary;
+import au.edu.uow.UserInterface.UserInterface;
 
 import java.io.*;
 import java.net.Socket;
@@ -78,7 +79,7 @@ public class JavaClientHandler implements Runnable
                             CurrentUser = split[1];
 
                             // Say the user is Registered
-                            System.out.println(CurrentUser + " registered");
+                            UserInterface.showRegistra(CurrentUser);
 
                             // Return Response
                             String myObject = REGISTER_RESPONSE;
@@ -123,9 +124,9 @@ public class JavaClientHandler implements Runnable
 
                         // User has Disconnected
                         if (!CurrentUser.isEmpty()) {
-                            System.out.println(CurrentUser + " disconnected");
+                            UserInterface.showDisconnection(CurrentUser, true);
                         } else {
-                            System.out.println("Disconnected");
+                            UserInterface.showDisconnection(null, false);
                         }
 
                         // Set done to true
@@ -134,7 +135,6 @@ public class JavaClientHandler implements Runnable
                         break;
 
                     default:
-                        // out.println(INVALID_REQUEST);
                         String myObject = INVALID_REQUEST;
                         objectOutputStream.writeObject(myObject);
                         break;
@@ -142,7 +142,7 @@ public class JavaClientHandler implements Runnable
             }
 
         } catch (IOException ioe) {
-            System.out.println("Error: " + ioe.getMessage());
+            UserInterface.error();
         } finally {
             try {
                 Incoming.close();

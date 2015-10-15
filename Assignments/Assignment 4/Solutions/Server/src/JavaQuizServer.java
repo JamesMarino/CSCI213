@@ -1,4 +1,5 @@
 import au.edu.uow.Networking.JavaClientHandler;
+import au.edu.uow.UserInterface.UserInterface;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -16,14 +17,14 @@ public class JavaQuizServer
         if (args.length > 0) {
             Port = Integer.parseInt(args[0]);
         } else {
-            System.out.println("Usage: java JavaQuizServer 12345");
+            UserInterface.showUsage();
             System.exit(0);
         }
 
         try {
 
             // Display server information
-            System.out.println("JavaQuizServer listening at: " + JavaQuizServer.Port);
+            UserInterface.showServerInfo(JavaQuizServer.Port);
 
             // Setup Server
             ServerSocket serverSocket = new ServerSocket(JavaQuizServer.Port);
