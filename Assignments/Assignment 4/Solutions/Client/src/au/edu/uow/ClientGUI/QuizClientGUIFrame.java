@@ -4,6 +4,7 @@ import au.edu.uow.Networking.ServerHandler;
 import au.edu.uow.QuestionLibrary.Question;
 
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
@@ -17,6 +18,9 @@ public class QuizClientGUIFrame extends JFrame
 
     // Labels
     private JLabel WelcomeNameLabel = new JLabel("");
+
+    // Menus
+    JMenuBar  MenuBar = new JMenuBar();
 
     // Buttons
     private JButton NextQuestionButton = new JButton("Next");
@@ -69,13 +73,13 @@ public class QuizClientGUIFrame extends JFrame
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         // Set the size
-        this.setSize(800, 500);
+        this.setSize(600, 500);
 
         // Set position on screen centre
         this.setLocationRelativeTo(null);
 
-        // Add the toolbar to the frame
-        this.addToolBar();
+        // Add the Menu Bar to the frame
+        this.addMenu();
 
         /*
          * Setup Student
@@ -172,34 +176,19 @@ public class QuizClientGUIFrame extends JFrame
         // New Panel
         BoxLayout boxLayout = new BoxLayout(MainPanel, BoxLayout.Y_AXIS);
         MainPanel.setLayout(boxLayout);
+        MainPanel.setBackground(new Color(57, 154, 153));
 
         // Result Label
-        JLabel resultLabel = new JLabel("Results of " + CurrentStudent.getName() + ": " + CurrentStudent.getScore() + " out of " + TotalQuestions);
+        JLabel resultLabel = new JLabel("<html><center><h1 style='color:white;'>" +
+                "Final Score</h1>" +
+                "<h2>" + CurrentStudent.getScore() + " out of " + TotalQuestions +
+                "</h2></center></h1></html>", JLabel.CENTER);
         resultLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        // Result Button
-        JButton exitButton = new JButton("Exit");
-        exitButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-
 
         MainPanel.add(Box.createRigidArea(new Dimension(0, 100)));
         MainPanel.add(resultLabel);
-        MainPanel.add(Box.createRigidArea(new Dimension(0, 200)));
-        MainPanel.add(exitButton);
 
         this.add(MainPanel);
-
-        exitButton.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-
-                // Close connection
-                serverHandler.close();
-
-                System.exit(0);
-
-            }
-        });
 
     }
 
@@ -315,21 +304,6 @@ public class QuizClientGUIFrame extends JFrame
     }
 
     /**
-     * Setter for Welcome Name Label
-     */
-    private void setWelcomeName()
-    {
-        // Use HTML
-        WelcomeNameLabel.setText(
-                "<html><center>" +
-                        "<p style='color:blue;font-weight:bold;font-size:24px;'>Java Quiz</p><br>" +
-                        "<p>Created By:</p>" +
-                        "<p>" + CurrentStudent.getName() + "</p>" +
-                        "</center></html>"
-        );
-    }
-
-    /**
      * Show welcome screen
      */
     public void addWelcomeScreen()
@@ -337,19 +311,93 @@ public class QuizClientGUIFrame extends JFrame
         // Clean
         this.cleanMainPanel();
 
-        WelcomeNameLabel.setText(
-                "<html><center>" +
-                        "<p style='color:blue;font-weight:bold;font-size:24px;'>Java Quiz</p><br>" +
-                        "<p>Created By:</p>" +
-                        "<p>You</p>" +
-                        "</center></html>");
+        /*
+         * Status Bar
+         */
+        JPanel statusBar = new JPanel();
+        statusBar.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-        MainPanel.add(WelcomeNameLabel);
+        JLabel connectionStatus = new JLabel("Disconnected");
+        connectionStatus.setFont(new Font("Default", Font.PLAIN, 12));
 
-        GridBagLayout layout = new GridBagLayout();
+        statusBar.add(connectionStatus);
+        statusBar.setBorder(new BevelBorder(BevelBorder.LOWERED));
+        this.add(statusBar, BorderLayout.SOUTH);
+
+        /*
+         * Main Content
+         */
+        BoxLayout layout = new BoxLayout(MainPanel, BoxLayout.PAGE_AXIS);
         MainPanel.setLayout(layout);
 
+        WelcomeNameLabel.setText(
+                "<html><body><center>" +
+                        "<h1 style='color:white;'>Java Quiz Client</h1><br>" +
+                        "<h2>Created By James Marino</h2>" +
+                        "<h2>for</h2>" +
+                        "<h2>CSCI213 Assignment 4</h2>" +
+                        "</center></body></html>");
+        MainPanel.setBackground(new Color(57, 154, 153));
+        WelcomeNameLabel.setPreferredSize(new Dimension(0, 400));
+
+        // Create elements
+        JPanel registerPanel = new JPanel();
+        // Sub elements
+        JLabel nameLabel = new JLabel("Your Name: ");
+        final JTextField nameField = new JTextField();
+        nameField.setPreferredSize(new Dimension(200, 24));
+
+        // Add Elements to toolbar
+        registerPanel.add(nameLabel);
+        registerPanel.add(nameField);
+
+        // Add to frame
+        MainPanel.add(WelcomeNameLabel);
+        MainPanel.add(registerPanel);
+
         this.add(MainPanel);
+
+        nameField.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                if (!nameField.getText().equals("")) {
+
+                    // Send to server
+                    if (registerNameServer(nameField.getText())) {
+
+                        // Set the name
+                        CurrentStudent.setName(nameField.getText());
+
+
+                        // Register Name with server
+                        registerNameServer(nameField.getText());
+
+                        // Go to the next frame
+                        showQuestion();
+                        showFrame();
+
+                        // Disable Elements
+                        nameField.setEnabled(false);
+
+                    } else {
+                        // Error Box
+                        JOptionPane.showMessageDialog(MainPanel.getParent(),
+                                "The server encountered an error registering name.",
+                                "Register Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+
+                } else {
+                    // Error Box
+                    JOptionPane.showMessageDialog(MainPanel.getParent(),
+                            "Do not leave name blank.",
+                            "Register Error",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+
+            }
+        });
     }
 
     /**
@@ -366,162 +414,37 @@ public class QuizClientGUIFrame extends JFrame
         MainPanel.repaint();
     }
 
-    /**
-     * Add toolbar to main frame
-     */
-    private void addToolBar()
+    private void addMenu()
     {
-        // Create elements
-        JToolBar toolBar = new JToolBar();
+        JMenu connectionMenu = new JMenu("Connection");
+        JMenu helpMenu = new JMenu("Help");
 
-        // Sub elements
-        JButton scoreButton = new JButton("Score");
-        JButton exitButton = new JButton("Exit");
-        JLabel nameLabel = new JLabel("Your Name: ");
-        final JTextField nameField = new JTextField();
-        final JButton registerButton = new JButton("Register");
+        JMenuItem connectMenuItem = new JMenuItem("Connect");
+        JMenuItem disconnectMenuItem = new JMenuItem("Disconnect");
+        JMenuItem serverMenuItem = new JMenuItem("Set Server");
+        JMenuItem exitMenuItem = new JMenuItem("Exit");
 
-        // Toolbar properties
-        toolBar.setFloatable(false);
+        connectionMenu.add(connectMenuItem);
+        connectionMenu.add(disconnectMenuItem);
+        connectionMenu.addSeparator();
+        connectionMenu.add(serverMenuItem);
+        connectionMenu.addSeparator();
+        connectionMenu.add(exitMenuItem);
 
-        // Add Elements to toolbar
-        toolBar.add(scoreButton);
-        toolBar.add(Box.createRigidArea(new Dimension(10, 0)));
-        toolBar.add(exitButton);
-        toolBar.add(Box.createRigidArea(new Dimension(40, 0)));
-        toolBar.add(nameLabel);
-        toolBar.add(nameField);
-        toolBar.add(registerButton);
-        toolBar.add(Box.createRigidArea(new Dimension(40, 0)));
+        disconnectMenuItem.setEnabled(false);
 
+        MenuBar.add(connectionMenu);
+        MenuBar.add(helpMenu);
 
-        // Add to frame
-        this.add(toolBar, BorderLayout.NORTH);
+        this.setJMenuBar(MenuBar);
 
         /*
          * Listeners
          */
-        nameField.addActionListener(new ActionListener() {
+        connectMenuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
-                if (!nameField.getText().equals("") && registerButton.isEnabled()) {
-
-                    // Send to server
-                    if (registerNameServer(nameField.getText())) {
-
-                        // Set the name
-                        CurrentStudent.setName(nameField.getText());
-
-
-                        // Set the label
-                        setWelcomeName();
-
-                        // Go to the next frame
-                        showQuestion();
-                        showFrame();
-
-                        // Disable Elements
-                        registerButton.setEnabled(false);
-                        nameField.setEnabled(false);
-
-                    } else {
-                        // Error Box
-                        JOptionPane.showMessageDialog(MainPanel.getParent(),
-                                "The server encountered an error registering name.",
-                                "Register Error",
-                                JOptionPane.ERROR_MESSAGE);
-                    }
-
-                } else {
-                    // Error Box
-                    JOptionPane.showMessageDialog(MainPanel.getParent(),
-                            "Do not leave name blank.",
-                            "Register Error",
-                            JOptionPane.ERROR_MESSAGE);
-                }
-
-            }
-        });
-
-        registerButton.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-
-                if (!nameField.getText().equals("") && registerButton.isEnabled()) {
-
-                    // Send to server
-                    if (registerNameServer(nameField.getText())) {
-
-                        // Set the name
-                        CurrentStudent.setName(nameField.getText());
-
-
-                        // Set the label
-                        setWelcomeName();
-
-                        // Go to the next frame
-                        showQuestion();
-                        showFrame();
-
-                        // Disable Elements
-                        registerButton.setEnabled(false);
-                        nameField.setEnabled(false);
-
-                    } else {
-                        // Error Box
-                        JOptionPane.showMessageDialog(MainPanel.getParent(),
-                                "The server encountered an error registering name.",
-                                "Register Error",
-                                JOptionPane.ERROR_MESSAGE);
-                    }
-
-                } else {
-                    // Error Box
-                    JOptionPane.showMessageDialog(MainPanel.getParent(),
-                            "Do not leave name blank.",
-                            "Register Error",
-                            JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        });
-
-        exitButton.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-
-                // Close Connection
-                serverHandler.close();
-
-                // Harsh exit
-                System.exit(0);
-
-            }
-        });
-
-        scoreButton.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-
-                // Test For empty student record
-                if (!CurrentStudent.getName().equals("")) {
-
-                    // All good, display score
-                    JOptionPane.showMessageDialog(MainPanel.getParent(),
-                            "Current score of " + CurrentStudent.getName() +
-                                    " is " + CurrentStudent.getScore(),
-                            "Score Check",
-                            JOptionPane.INFORMATION_MESSAGE);
-
-                } else {
-                    // Error Box
-                    JOptionPane.showMessageDialog(MainPanel.getParent(),
-                            "Cannot check score if not registered!",
-                            "Score Check Error",
-                            JOptionPane.ERROR_MESSAGE);
-
-                }
-
+                System.out.println("Menu Item Clicked");
             }
         });
 
