@@ -16,9 +16,6 @@ public class JavaQuizServer
         // Set Port
         if (args.length > 0) {
             Port = Integer.parseInt(args[0]);
-        } else {
-            UserInterface.showUsage();
-            System.exit(0);
         }
 
         try {

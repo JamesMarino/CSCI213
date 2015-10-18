@@ -43,24 +43,7 @@ public class QuizClientGUIFrame extends JFrame
 
     private static final String SUCCESS = "OK";
 
-    /**
-     *
-     */
-    public void setup()
-    {
-
-        // Receive
-        String registerResponse;
-        List<Question> question;
-
-        registerResponse = serverHandler.register("James");
-        question = serverHandler.getQuestion();
-
-        // Close connection
-        serverHandler.close();
-    }
-
-    public QuizClientGUIFrame(String windowName)
+    public QuizClientGUIFrame(String windowName, String host, int port)
     {
 
         /*
@@ -68,6 +51,15 @@ public class QuizClientGUIFrame extends JFrame
          */
         // Set the name
         super(windowName);
+
+        // Set port and host
+        if (host != null) {
+            ServerDomain = host;
+        }
+
+        if (port > 0) {
+            ServerPort = port;
+        }
 
         // Close operation
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -128,6 +120,9 @@ public class QuizClientGUIFrame extends JFrame
             }
         });
 
+        /*
+         * Check if the window is closing, close connection to server
+         */
         // Add listener for Window Closing
         this.addWindowListener(new WindowAdapter() {
             @Override
@@ -378,10 +373,6 @@ public class QuizClientGUIFrame extends JFrame
                                 // Set the name
                                 CurrentStudent.setName(nameField.getText());
 
-
-                                // Register Name with server
-                                registerNameServer(nameField.getText());
-
                                 // Go to the next frame
                                 showQuestion();
                                 showFrame();
@@ -513,6 +504,7 @@ public class QuizClientGUIFrame extends JFrame
 
                     String response = JOptionPane.showInputDialog(MainPanel.getParent(), "Server:Port",
                             ServerDomain + ":" + ServerPort);
+
                     String[] split = response.split(":");
 
                     ServerDomain = split[0];
