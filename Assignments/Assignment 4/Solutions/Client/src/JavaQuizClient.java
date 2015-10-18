@@ -1,9 +1,15 @@
 import au.edu.uow.ClientGUI.QuizClientGUIFrame;
 
+/**
+ * Main client class
+ * @author Subject Code: CSCI213
+ * @author Name: James Marino
+ * @author Student Number: 4720994
+ * @author Login: jm617
+ */
 public class JavaQuizClient
 {
     private static final String  WindowName = "Quiz";
-
 
     public static void main(String[] args)
     {

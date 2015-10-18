@@ -5,6 +5,13 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+/**
+ * Main Quiz Server Class
+ * @author Subject Code: CSCI213
+ * @author Name: James Marino
+ * @author Student Number: 4720994
+ * @author Login: jm617
+ */
 public class JavaQuizServer
 {
     private static int Port = 8000;

@@ -12,6 +12,13 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Client GUI Interface
+ * @author Subject Code: CSCI213
+ * @author Name: James Marino
+ * @author Student Number: 4720994
+ * @author Login: jm617
+ */
 public class QuizClientGUIFrame extends JFrame
 {
 
@@ -43,6 +50,12 @@ public class QuizClientGUIFrame extends JFrame
 
     private static final String SUCCESS = "OK";
 
+    /**
+     * Setup client
+     * @param windowName name of window
+     * @param host server host
+     * @param port server port
+     */
     public QuizClientGUIFrame(String windowName, String host, int port)
     {
 
@@ -135,6 +148,11 @@ public class QuizClientGUIFrame extends JFrame
 
     }
 
+    /**
+     * Register name of user with server
+     * @param name of user
+     * @return success status
+     */
     public boolean registerNameServer(String name)
     {
         String response = serverHandler.register(name);
@@ -351,6 +369,9 @@ public class QuizClientGUIFrame extends JFrame
 
         this.add(MainPanel);
 
+        /**
+         * Check for enter key press
+         */
         nameField.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -429,6 +450,9 @@ public class QuizClientGUIFrame extends JFrame
         MainPanel.repaint();
     }
 
+    /**
+     * Add menu bar to frame
+     */
     private void addMenu()
     {
         JMenu connectionMenu = new JMenu("Connection");
@@ -468,6 +492,10 @@ public class QuizClientGUIFrame extends JFrame
                         JOptionPane.INFORMATION_MESSAGE);
             }
         });
+
+        /**
+         * Various event listeners for menu items below
+         */
 
         connectionMenu.addMenuListener(new MenuListener() {
             @Override

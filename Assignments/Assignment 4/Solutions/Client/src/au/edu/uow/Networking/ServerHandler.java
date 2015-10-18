@@ -8,6 +8,13 @@ import java.net.Socket;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * Server response handler
+ * @author Subject Code: CSCI213
+ * @author Name: James Marino
+ * @author Student Number: 4720994
+ * @author Login: jm617
+ */
 public class ServerHandler
 {
 
@@ -29,16 +36,28 @@ public class ServerHandler
 
     boolean connected;
 
+    /**
+     * Set default connection status to false
+     */
     public ServerHandler()
     {
         connected = false;
     }
 
+    /**
+     * Getter - Connection status
+     * @return connection status
+     */
     public boolean getConnectionStatus()
     {
         return connected;
     }
 
+    /**
+     * Connect to server
+     * @param serverName servers name
+     * @param serverPort servers port
+     */
     public void connect(String serverName, int serverPort)
     {
         Host = serverName;
@@ -63,16 +82,28 @@ public class ServerHandler
         }
     }
 
+    /**
+     * Getter - Questions
+     * @return questions
+     */
     public List<Question> getQuestion()
     {
         return (List<Question>)request(GET_REQUEST + " " + QUESTION_REQUEST_ARG);
     }
 
+    /**
+     * Register a user
+     * @param name current user
+     * @return response
+     */
     public String register(String name)
     {
         return (String)request(REGISTER_REQUEST + " " + name);
     }
 
+    /**
+     * Close connection to server
+     */
     public void close()
     {
         try {
@@ -92,6 +123,11 @@ public class ServerHandler
         }
     }
 
+    /**
+     * Reuest a serialised object from the server
+     * @param command protocol command
+     * @return object serialised
+     */
     private Object request(String command)
     {
         Object received;

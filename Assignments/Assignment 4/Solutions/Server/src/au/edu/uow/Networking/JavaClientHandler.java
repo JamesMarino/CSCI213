@@ -9,11 +9,17 @@ import java.net.Socket;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * Java Client Handler
+ * @author Subject Code: CSCI213
+ * @author Name: James Marino
+ * @author Student Number: 4720994
+ * @author Login: jm617
+ */
 public class JavaClientHandler implements Runnable
 {
     private Socket Incoming;
     private String CurrentUser;
-
 
     /*
      * Constants
@@ -28,6 +34,11 @@ public class JavaClientHandler implements Runnable
 
     private static final int QUESTIONS = 5;
 
+    /**
+     * Constructor - Setter
+     * @param incoming incoming socket
+     * @param questionsFileName questions file name
+     */
     public JavaClientHandler(Socket incoming, String questionsFileName)
     {
         Incoming = incoming;
@@ -37,6 +48,9 @@ public class JavaClientHandler implements Runnable
         QuestionLibrary.buildLibrary(questionsFileName);
     }
 
+    /**
+     * Threaded run for handling requests
+     */
     @Override
     public void run()
     {
