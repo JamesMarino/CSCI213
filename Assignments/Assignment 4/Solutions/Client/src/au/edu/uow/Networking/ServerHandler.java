@@ -58,7 +58,7 @@ public class ServerHandler
             connected = true;
 
         } catch (Exception e) {
-            System.out.println("Make sure the server is running and try again");
+            System.out.println("Could not connect to server");
             connected = false;
         }
     }

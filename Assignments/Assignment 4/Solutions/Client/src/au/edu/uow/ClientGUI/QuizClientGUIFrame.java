@@ -2,7 +2,6 @@ package au.edu.uow.ClientGUI;
 
 import au.edu.uow.Networking.ServerHandler;
 import au.edu.uow.QuestionLibrary.Question;
-import com.sun.codemodel.internal.JOp;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
@@ -36,8 +35,8 @@ public class QuizClientGUIFrame extends JFrame
 
     // Server
     private ServerHandler serverHandler = new ServerHandler();
-    private String ServerDomain = "";
-    private int ServerPort = 0;
+    private String ServerDomain = "localhost";
+    private int ServerPort = 8000;
 
     private static int QuestionPosition = 0;
     private static int TotalQuestions = 0;
@@ -512,7 +511,8 @@ public class QuizClientGUIFrame extends JFrame
 
                 try {
 
-                    String response = JOptionPane.showInputDialog(MainPanel.getParent(), "Message");
+                    String response = JOptionPane.showInputDialog(MainPanel.getParent(), "Server:Port",
+                            ServerDomain + ":" + ServerPort);
                     String[] split = response.split(":");
 
                     ServerDomain = split[0];
@@ -532,9 +532,11 @@ public class QuizClientGUIFrame extends JFrame
                 serverHandler.connect(ServerDomain, ServerPort);
 
                 if (serverHandler.getConnectionStatus()) {
-                    ConnectionStatus.setText("Connected To Server");
+                    ConnectionStatus.setText("Connected to "
+                            + ServerDomain + ":" + ServerPort);
                 } else {
-                    ConnectionStatus.setText("Could not Connect to Server");
+                    ConnectionStatus.setText("Could not Connect to  "
+                            + ServerDomain + ":" + ServerPort);
                 }
 
             }
