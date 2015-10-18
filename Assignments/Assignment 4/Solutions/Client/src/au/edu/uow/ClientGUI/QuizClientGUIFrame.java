@@ -2,9 +2,12 @@ package au.edu.uow.ClientGUI;
 
 import au.edu.uow.Networking.ServerHandler;
 import au.edu.uow.QuestionLibrary.Question;
+import com.sun.codemodel.internal.JOp;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
@@ -18,6 +21,7 @@ public class QuizClientGUIFrame extends JFrame
 
     // Labels
     private JLabel WelcomeNameLabel = new JLabel("");
+    private JLabel ConnectionStatus = new JLabel("Connect to the Server First");
 
     // Menus
     JMenuBar  MenuBar = new JMenuBar();
@@ -29,7 +33,11 @@ public class QuizClientGUIFrame extends JFrame
     // Data
     private Student CurrentStudent = new Student();
     private List<Question> QuizData;
+
+    // Server
     private ServerHandler serverHandler = new ServerHandler();
+    private String ServerDomain = "";
+    private int ServerPort = 0;
 
     private static int QuestionPosition = 0;
     private static int TotalQuestions = 0;
@@ -51,13 +59,6 @@ public class QuizClientGUIFrame extends JFrame
 
         // Close connection
         serverHandler.close();
-    }
-
-    public boolean registerNameServer(String name)
-    {
-        String response = serverHandler.register(name);
-
-        return response.equals(SUCCESS);
     }
 
     public QuizClientGUIFrame(String windowName)
@@ -84,76 +85,67 @@ public class QuizClientGUIFrame extends JFrame
         /*
          * Setup Student
          */
-        QuizData = serverHandler.getQuestion();
+        // Set event listener - next question
+        NextQuestionButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
 
-        // Check for error
-        if (QuizData != null) {
-            TotalQuestions = QuizData.size();
+                // Show another question
+                if (QuestionPosition < TotalQuestions) {
 
-            // Set event listener - next question
-            NextQuestionButton.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mousePressed(MouseEvent e) {
+                    // Get the last Current Quiz Question
+                    Question currentQuestion = QuizData.get(QuestionPosition - 1);
 
-                    // Show another question
-                    if (QuestionPosition < TotalQuestions) {
+                    for (int i = 0; i < CurrentRadioButtons.size(); i++) {
 
-                        // Get the last Current Quiz Question
-                        Question currentQuestion = QuizData.get(QuestionPosition - 1);
+                        // Get the selected response
+                        JRadioButton currentRadioButton = (JRadioButton) CurrentRadioButtons.get(i);
 
-                        for (int i = 0; i < CurrentRadioButtons.size(); i++) {
+                        if (currentRadioButton.isSelected()) {
 
-                            // Get the selected response
-                            JRadioButton currentRadioButton = (JRadioButton) CurrentRadioButtons.get(i);
-
-                            if (currentRadioButton.isSelected()) {
-
-                                // Check if current question answered is correct
-                                // + 1 to counteract for 1 based answer values
-                                if (currentQuestion.compareAnswer(i + 1)) {
-                                    // Add a point
-                                    CurrentStudent.recordScore(true);
-                                }
-
+                            // Check if current question answered is correct
+                            // + 1 to counteract for 1 based answer values
+                            if (currentQuestion.compareAnswer(i + 1)) {
+                                // Add a point
+                                CurrentStudent.recordScore(true);
                             }
 
                         }
 
-                        // Go to next question
-                        showQuestion();
-                        showFrame();
-
-                    } else {
-
-                        // Show marking
-                        showMarksResult();
-                        showFrame();
-
                     }
 
+                    // Go to next question
+                    showQuestion();
+                    showFrame();
+
+                } else {
+
+                    // Show marking
+                    showMarksResult();
+                    showFrame();
+
                 }
-            });
 
-            // Add listener for Window Closing
-            this.addWindowListener(new WindowAdapter() {
-                @Override
-                public void windowClosing(WindowEvent e) {
+            }
+        });
 
-                    // Close Connection
-                    serverHandler.close();
-                }
-            });
-        } else {
-            // Dialogue telling user there is error
-            JOptionPane.showMessageDialog(MainPanel.getParent(),
-                    "Could not get questions from server.\nWill close now.",
-                    "Fatal Error",
-                    JOptionPane.ERROR_MESSAGE);
+        // Add listener for Window Closing
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
 
-            // Quit on OK
-            System.exit(0);
-        }
+                // Close Connection
+                serverHandler.close();
+            }
+        });
 
+    }
+
+    public boolean registerNameServer(String name)
+    {
+        String response = serverHandler.register(name);
+
+        return response.equals(SUCCESS);
     }
 
     /**
@@ -172,6 +164,15 @@ public class QuizClientGUIFrame extends JFrame
     {
         // Clean Panel
         this.cleanMainPanel();
+
+        // Disconnect from server
+        serverHandler.close();
+
+        if (serverHandler.getConnectionStatus()) {
+            ConnectionStatus.setText("Could not Disconnected from Server");
+        } else {
+            ConnectionStatus.setText("Disconnected");
+        }
 
         // New Panel
         BoxLayout boxLayout = new BoxLayout(MainPanel, BoxLayout.Y_AXIS);
@@ -317,10 +318,9 @@ public class QuizClientGUIFrame extends JFrame
         JPanel statusBar = new JPanel();
         statusBar.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-        JLabel connectionStatus = new JLabel("Disconnected");
-        connectionStatus.setFont(new Font("Default", Font.PLAIN, 12));
+        ConnectionStatus.setFont(new Font("Default", Font.PLAIN, 12));
 
-        statusBar.add(connectionStatus);
+        statusBar.add(ConnectionStatus);
         statusBar.setBorder(new BevelBorder(BevelBorder.LOWERED));
         this.add(statusBar, BorderLayout.SOUTH);
 
@@ -361,29 +361,55 @@ public class QuizClientGUIFrame extends JFrame
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                if (!nameField.getText().equals("")) {
+                if (serverHandler.getConnectionStatus()) {
 
-                    // Send to server
-                    if (registerNameServer(nameField.getText())) {
+                    if (!nameField.getText().equals("")) {
 
-                        // Set the name
-                        CurrentStudent.setName(nameField.getText());
+                        // Get Questions
+                        QuizData = serverHandler.getQuestion();
+
+                        if (QuizData != null) {
+
+                            // Send to server
+                            if (registerNameServer(nameField.getText())) {
+
+                                // Get Question Size
+                                TotalQuestions = QuizData.size();
+
+                                // Set the name
+                                CurrentStudent.setName(nameField.getText());
 
 
-                        // Register Name with server
-                        registerNameServer(nameField.getText());
+                                // Register Name with server
+                                registerNameServer(nameField.getText());
 
-                        // Go to the next frame
-                        showQuestion();
-                        showFrame();
+                                // Go to the next frame
+                                showQuestion();
+                                showFrame();
 
-                        // Disable Elements
-                        nameField.setEnabled(false);
+                                // Disable Elements
+                                nameField.setEnabled(false);
+
+                            } else {
+                                // Error Box
+                                JOptionPane.showMessageDialog(MainPanel.getParent(),
+                                        "The server encountered an error registering name.",
+                                        "Register Error",
+                                        JOptionPane.ERROR_MESSAGE);
+                            }
+
+                        } else {
+                            // Error Box
+                            JOptionPane.showMessageDialog(MainPanel.getParent(),
+                                    "Error Retrieving Questions.",
+                                    "Register Error",
+                                    JOptionPane.ERROR_MESSAGE);
+                        }
 
                     } else {
                         // Error Box
                         JOptionPane.showMessageDialog(MainPanel.getParent(),
-                                "The server encountered an error registering name.",
+                                "Do not leave name blank.",
                                 "Register Error",
                                 JOptionPane.ERROR_MESSAGE);
                     }
@@ -391,11 +417,10 @@ public class QuizClientGUIFrame extends JFrame
                 } else {
                     // Error Box
                     JOptionPane.showMessageDialog(MainPanel.getParent(),
-                            "Do not leave name blank.",
+                            "Connect to the Server First.",
                             "Register Error",
                             JOptionPane.ERROR_MESSAGE);
                 }
-
             }
         });
     }
@@ -419,8 +444,8 @@ public class QuizClientGUIFrame extends JFrame
         JMenu connectionMenu = new JMenu("Connection");
         JMenu helpMenu = new JMenu("Help");
 
-        JMenuItem connectMenuItem = new JMenuItem("Connect");
-        JMenuItem disconnectMenuItem = new JMenuItem("Disconnect");
+        final JMenuItem connectMenuItem = new JMenuItem("Connect");
+        final JMenuItem disconnectMenuItem = new JMenuItem("Disconnect");
         JMenuItem serverMenuItem = new JMenuItem("Set Server");
         JMenuItem exitMenuItem = new JMenuItem("Exit");
 
@@ -431,7 +456,8 @@ public class QuizClientGUIFrame extends JFrame
         connectionMenu.addSeparator();
         connectionMenu.add(exitMenuItem);
 
-        disconnectMenuItem.setEnabled(false);
+        JMenuItem aboutItemMenu = new JMenuItem("About");
+        helpMenu.add(aboutItemMenu);
 
         MenuBar.add(connectionMenu);
         MenuBar.add(helpMenu);
@@ -441,10 +467,103 @@ public class QuizClientGUIFrame extends JFrame
         /*
          * Listeners
          */
+        aboutItemMenu.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(MainPanel.getParent(),
+                        "Java Quiz Client Version 1.0.\n" +
+                                "Based on Java Sockets\n" +
+                                "By James Marino",
+                        "About",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
+
+        connectionMenu.addMenuListener(new MenuListener() {
+            @Override
+            public void menuSelected(MenuEvent e) {
+
+                // Check what menu item should be disabled
+                if (serverHandler.getConnectionStatus()) {
+                    connectMenuItem.setEnabled(false);
+                    disconnectMenuItem.setEnabled(true);
+                } else {
+                    connectMenuItem.setEnabled(true);
+                    disconnectMenuItem.setEnabled(false);
+                }
+
+            }
+
+            @Override
+            public void menuDeselected(MenuEvent e) {
+
+            }
+
+            @Override
+            public void menuCanceled(MenuEvent e) {
+
+            }
+
+        });
+
+        serverMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                try {
+
+                    String response = JOptionPane.showInputDialog(MainPanel.getParent(), "Message");
+                    String[] split = response.split(":");
+
+                    ServerDomain = split[0];
+                    ServerPort = Integer.parseInt(split[1]);
+
+                } catch (Exception ex) {
+                    ServerDomain = "localhost";
+                    ServerPort = 8000;
+                }
+            }
+        });
+
         connectMenuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("Menu Item Clicked");
+
+                serverHandler.connect(ServerDomain, ServerPort);
+
+                if (serverHandler.getConnectionStatus()) {
+                    ConnectionStatus.setText("Connected To Server");
+                } else {
+                    ConnectionStatus.setText("Could not Connect to Server");
+                }
+
+            }
+        });
+
+        disconnectMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                serverHandler.close();
+
+                if (serverHandler.getConnectionStatus()) {
+                    ConnectionStatus.setText("Could not Disconnected from Server");
+                } else {
+                    ConnectionStatus.setText("Disconnected");
+                }
+
+            }
+        });
+
+        exitMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                // Close any open connections
+                serverHandler.close();
+
+                // Exit
+                System.exit(0);
             }
         });
 

@@ -52,7 +52,7 @@ public class JavaClientHandler implements Runnable
             boolean done = false;
 
             // Flush Buffer
-            out.println("Ready:");
+            out.println("Connected to Server");
 
             while (!done && in.hasNext()) {
                 String line = in.nextLine();

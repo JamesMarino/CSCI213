@@ -19,18 +19,34 @@ public class ServerHandler
     private static final String QUESTION_REQUEST_ARG = "QUESTION";
     private static final String BYE_REQUEST = "BYE";
 
-    private static final String HOST = "localhost";
-    private static final int PORT = 40213;
+    private String Host = "localhost";
+    private int Port = 40213;
 
     private Socket Socket = null;
     private PrintWriter Out = null;
     private ObjectInputStream ObjectIn = null;
     private Scanner ScannerIn = null;
 
-    public ServerHandler() {
+    boolean connected;
+
+    public ServerHandler()
+    {
+        connected = false;
+    }
+
+    public boolean getConnectionStatus()
+    {
+        return connected;
+    }
+
+    public void connect(String serverName, int serverPort)
+    {
+        Host = serverName;
+        Port = serverPort;
+
         try {
 
-            Socket = new Socket(HOST, PORT);
+            Socket = new Socket(Host, Port);
             Out = new PrintWriter(Socket.getOutputStream(), true);
             ObjectIn = new ObjectInputStream(Socket.getInputStream());
             ScannerIn = new Scanner(Socket.getInputStream());
@@ -38,8 +54,12 @@ public class ServerHandler
             // Check if ready
             System.out.println(ScannerIn.nextLine());
 
+            // Set Status
+            connected = true;
+
         } catch (Exception e) {
             System.out.println("Make sure the server is running and try again");
+            connected = false;
         }
     }
 
@@ -63,8 +83,12 @@ public class ServerHandler
             Out.close();
             ScannerIn.close();
             Socket.close();
+
+            connected = false;
+
         } catch (Exception e) {
             System.out.println("Error Closing Connection");
+            connected = true;
         }
     }
 
